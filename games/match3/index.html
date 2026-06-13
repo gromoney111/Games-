@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match 3 - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .info-bar { display: flex; gap: 2rem; margin: 1rem 0; font-size: 1rem; flex-wrap: wrap; justify-content: center; }
+        .info-bar span { color: #8888aa; }
+        .info-bar strong { color: #00d4aa; }
+        .mode-btns { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .mode-btn { padding: 0.4rem 1rem; background: #1a1a3e; border: 2px solid #6c63ff; border-radius: 20px; color: #e0e0ff; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; }
+        .mode-btn:hover, .mode-btn.active { background: #6c63ff; color: white; }
+        .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; background: #12122a; border: 3px solid #6c63ff; border-radius: 12px; padding: 6px; max-width: 420px; width: 100%; }
+        .cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; background: #1a1a3e; border-radius: 6px; cursor: pointer; transition: all 0.2s; user-select: none; }
+        .cell:hover { background: #2a2a5e; transform: scale(1.05); }
+        .cell.selected { background: rgba(0, 212, 170, 0.3); box-shadow: 0 0 10px rgba(0, 212, 170, 0.5); transform: scale(1.1); }
+        .cell.matched { animation: pop 0.3s ease; }
+        .cell.falling { transition: transform 0.3s ease; }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(0); } }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .combo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: 700; color: #ffb347; pointer-events: none; opacity: 0; transition: all 0.5s; }
+        .combo.show { opacity: 1; transform: translate(-50%, -70%); }
+        .game-over { display: none; text-align: center; margin-top: 1rem; }
+        .game-over h2 { color: #ff6584; }
+        @media (max-width: 500px) { .cell { font-size: 1.3rem; } .grid { max-width: 100%; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>💎 Match 3</h1>
+    <div class="info-bar">
+        <div><span>Score: </span><strong id="score">0</strong></div>
+        <div id="timer-display"><span>Time: </span><strong id="timer">60</strong><span>s</span></div>
+        <div id="moves-display" style="display:none"><span>Moves: </span><strong id="moves-left">30</strong></div>
+    </div>
+    <div class="mode-btns">
+        <button class="mode-btn active" onclick="startGame('timer')">⏱ Timer (60s)</button>
+        <button class="mode-btn" onclick="startGame('moves')">🎯 Moves (30)</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="combo" id="combo"></div>
+    <div class="game-over" id="gameover">
+        <h2>Time's Up!</h2>
+        <p>Final Score: <strong id="final-score">0</strong></p>
+        <button class="btn" onclick="startGame(currentMode)">Play Again</button>
+    </div>
+
+    <script>
+        const GRID_SIZE = 8;
+        const GEMS = ['🔴', '🟡', '🟢', '🔵', '🟣', '🟠'];
+        let grid = [], selected = null, score = 0, combo = 0;
+        let currentMode = 'timer', timeLeft = 60, movesLeft = 30, timerInterval, gameActive = false;
+
+        function startGame(mode) {
+            currentMode = mode;
+            score = 0;
+            combo = 0;
+            selected = null;
+            gameActive = true;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('gameover').style.display = 'none';
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.mode-btn:nth-child(${mode === 'timer' ? 1 : 2})`).classList.add('active');
+            if (timerInterval) clearInterval(timerInterval);
+            if (mode === 'timer') {
+                timeLeft = 60;
+                document.getElementById('timer').textContent = '60';
+                document.getElementById('timer-display').style.display = '';
+                document.getElementById('moves-display').style.display = 'none';
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('timer').textContent = timeLeft;
+                    if (timeLeft <= 0) endGame();
+                }, 1000);
+            } else {
+                movesLeft = 30;
+                document.getElementById('moves-left').textContent = '30';
+                document.getElementById('timer-display').style.display = 'none';
+                document.getElementById('moves-display').style.display = '';
+            }
+            generateGrid();
+            renderGrid();
+        }
+
+        function generateGrid() {
+            grid = [];
+            for (let r = 0; r < GRID_SIZE; r++) {
+                grid[r] = [];
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    let gem;
+                    do {
+                        gem = GEMS[Math.floor(Math.random() * GEMS.length)];
+                    } while (
+                        (c >= 2 && grid[r][c-1] === gem && grid[r][c-2] === gem) ||
+                        (r >= 2 && grid[r-1][c] === gem && grid[r-2][c] === gem)
+                    );
+                    grid[r][c] = gem;
+                }
+            }
+        }
+
+        function renderGrid() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    let cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.textContent = grid[r][c] || '';
+                    if (selected && selected.r === r && selected.c === c) cell.classList.add('selected');
+                    cell.onclick = () => cellClick(r, c);
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        function cellClick(r, c) {
+            if (!gameActive) return;
+            if (!selected) {
+                selected = { r, c };
+                renderGrid();
+                return;
+            }
+            // Check adjacency
+            let dr = Math.abs(selected.r - r), dc = Math.abs(selected.c - c);
+            if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
+                // Swap
+                swap(selected.r, selected.c, r, c);
+                let matches = findMatches();
+                if (matches.length > 0) {
+                    if (currentMode === 'moves') {
+                        movesLeft--;
+                        document.getElementById('moves-left').textContent = movesLeft;
+                        if (movesLeft <= 0) { processMatches(matches); setTimeout(endGame, 500); selected = null; renderGrid(); return; }
+                    }
+                    processMatches(matches);
+                } else {
+                    // Swap back
+                    swap(selected.r, selected.c, r, c);
+                }
+            }
+            selected = null;
+            renderGrid();
+        }
+
+        function swap(r1, c1, r2, c2) {
+            [grid[r1][c1], grid[r2][c2]] = [grid[r2][c2], grid[r1][c1]];
+        }
+
+        function findMatches() {
+            let matches = new Set();
+            // Horizontal
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE - 2; c++) {
+                    if (grid[r][c] && grid[r][c] === grid[r][c+1] && grid[r][c] === grid[r][c+2]) {
+                        let len = 3;
+                        while (c + len < GRID_SIZE && grid[r][c + len] === grid[r][c]) len++;
+                        for (let i = 0; i < len; i++) matches.add(r + ',' + (c + i));
+                    }
+                }
+            }
+            // Vertical
+            for (let c = 0; c < GRID_SIZE; c++) {
+                for (let r = 0; r < GRID_SIZE - 2; r++) {
+                    if (grid[r][c] && grid[r][c] === grid[r+1][c] && grid[r][c] === grid[r+2][c]) {
+                        let len = 3;
+                        while (r + len < GRID_SIZE && grid[r + len][c] === grid[r][c]) len++;
+                        for (let i = 0; i < len; i++) matches.add((r + i) + ',' + c);
+                    }
+                }
+            }
+            return Array.from(matches).map(s => { let [r, c] = s.split(','); return { r: +r, c: +c }; });
+        }
+
+        function processMatches(matches) {
+            combo++;
+            score += matches.length * 10 * combo;
+            document.getElementById('score').textContent = score;
+            if (combo > 1) showCombo(combo);
+            // Remove matched
+            matches.forEach(m => grid[m.r][m.c] = null);
+            // Drop
+            setTimeout(() => {
+                dropGems();
+                fillEmpty();
+                renderGrid();
+                // Check for more matches
+                let newMatches = findMatches();
+                if (newMatches.length > 0) {
+                    setTimeout(() => processMatches(newMatches), 300);
+                } else {
+                    combo = 0;
+                }
+            }, 200);
+        }
+
+        function dropGems() {
+            for (let c = 0; c < GRID_SIZE; c++) {
+                let writePos = GRID_SIZE - 1;
+                for (let r = GRID_SIZE - 1; r >= 0; r--) {
+                    if (grid[r][c]) {
+                        grid[writePos][c] = grid[r][c];
+                        if (writePos !== r) grid[r][c] = null;
+                        writePos--;
+                    }
+                }
+                while (writePos >= 0) { grid[writePos][c] = null; writePos--; }
+            }
+        }
+
+        function fillEmpty() {
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (!grid[r][c]) grid[r][c] = GEMS[Math.floor(Math.random() * GEMS.length)];
+                }
+            }
+        }
+
+        function showCombo(n) {
+            let el = document.getElementById('combo');
+            el.textContent = n + 'x Combo!';
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 800);
+        }
+
+        function endGame() {
+            gameActive = false;
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('gameover').querySelector('h2').textContent = currentMode === 'timer' ? "Time's Up!" : "No Moves Left!";
+            document.getElementById('gameover').style.display = 'block';
+        }
+
+        startGame('timer');
+    </script>
+</body>
+</html>

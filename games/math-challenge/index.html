@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Challenge - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .info-bar { display: flex; gap: 1.5rem; margin: 1rem 0; font-size: 1rem; flex-wrap: wrap; justify-content: center; }
+        .info-bar span { color: #8888aa; }
+        .info-bar strong { color: #00d4aa; }
+        .timer-bar { width: 100%; max-width: 400px; height: 8px; background: #1a1a3e; border-radius: 4px; overflow: hidden; margin: 0.5rem 0; }
+        .timer-fill { height: 100%; background: linear-gradient(90deg, #00d4aa, #6c63ff); transition: width 0.1s linear; border-radius: 4px; }
+        .timer-fill.warning { background: linear-gradient(90deg, #ff6584, #ffb347); }
+        .question-card { background: #12122a; border: 2px solid #6c63ff; border-radius: 16px; padding: 2rem; text-align: center; max-width: 450px; width: 100%; margin: 1rem 0; }
+        .question-num { color: #8888aa; font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .question { font-size: 2.5rem; font-weight: 700; margin: 1rem 0; color: #e0e0ff; }
+        .streak { color: #ffb347; font-size: 0.9rem; margin-bottom: 1rem; }
+        .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.5rem; }
+        .answer-btn { padding: 1rem; background: #1a1a3e; border: 2px solid #6c63ff; border-radius: 12px; color: #e0e0ff; font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .answer-btn:hover { background: #2a2a5e; transform: scale(1.03); }
+        .answer-btn.correct { background: rgba(0, 212, 170, 0.3); border-color: #00d4aa; color: #00d4aa; }
+        .answer-btn.wrong { background: rgba(255, 101, 132, 0.3); border-color: #ff6584; color: #ff6584; }
+        .answer-btn:disabled { cursor: default; transform: none; }
+        .result { display: none; text-align: center; margin-top: 1rem; }
+        .result h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .result .stats { color: #8888aa; margin: 0.5rem 0; }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .feedback { font-size: 1.5rem; min-height: 2rem; margin-top: 0.5rem; }
+        @media (max-width: 400px) { .question { font-size: 2rem; } .answer-btn { font-size: 1.1rem; padding: 0.8rem; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>🧮 Math Challenge</h1>
+    <div class="info-bar">
+        <div><span>Score: </span><strong id="score">0</strong></div>
+        <div><span>Question: </span><strong id="qnum">1</strong><span>/20</span></div>
+        <div><span>Streak: </span><strong id="streak">0</strong><span>🔥</span></div>
+    </div>
+    <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+    <div class="question-card" id="question-card">
+        <div class="question-num" id="q-label">Question 1 of 20</div>
+        <div class="question" id="question">5 + 3</div>
+        <div class="streak" id="streak-bonus"></div>
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback"></div>
+    </div>
+    <div class="result" id="result">
+        <h2 id="result-title">Great Job!</h2>
+        <p class="stats" id="result-stats"></p>
+        <button class="btn" onclick="startGame()">Play Again</button>
+    </div>
+    <button class="btn" id="start-btn" onclick="startGame()">Start Challenge</button>
+
+    <script>
+        const TOTAL_QUESTIONS = 20;
+        const TIME_PER_QUESTION = 10;
+        let currentQ, score, streak, maxStreak, correct, questionNum, timerInterval, timeLeft;
+        let difficulty = 1, answered;
+
+        function startGame() {
+            score = 0; streak = 0; maxStreak = 0; correct = 0; questionNum = 0; difficulty = 1;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('streak').textContent = '0';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('question-card').style.display = 'block';
+            document.getElementById('start-btn').style.display = 'none';
+            nextQuestion();
+        }
+
+        function generateQuestion() {
+            let maxNum = 10 + difficulty * 5;
+            let ops = ['+', '-', '×', '÷'];
+            let op = ops[Math.floor(Math.random() * Math.min(2 + Math.floor(difficulty / 3), 4))];
+            let a, b, answer;
+            switch (op) {
+                case '+':
+                    a = Math.floor(Math.random() * maxNum) + 1;
+                    b = Math.floor(Math.random() * maxNum) + 1;
+                    answer = a + b;
+                    break;
+                case '-':
+                    a = Math.floor(Math.random() * maxNum) + 5;
+                    b = Math.floor(Math.random() * Math.min(a, maxNum)) + 1;
+                    answer = a - b;
+                    break;
+                case '×':
+                    a = Math.floor(Math.random() * Math.min(maxNum, 12)) + 2;
+                    b = Math.floor(Math.random() * Math.min(maxNum, 12)) + 2;
+                    answer = a * b;
+                    break;
+                case '÷':
+                    b = Math.floor(Math.random() * 10) + 2;
+                    answer = Math.floor(Math.random() * 10) + 1;
+                    a = b * answer;
+                    break;
+            }
+            // Generate wrong answers
+            let options = [answer];
+            while (options.length < 4) {
+                let wrong = answer + Math.floor(Math.random() * 10) - 5;
+                if (wrong !== answer && wrong >= 0 && !options.includes(wrong)) options.push(wrong);
+            }
+            // Shuffle options
+            for (let i = options.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+            return { text: `${a} ${op} ${b}`, answer, options };
+        }
+
+        function nextQuestion() {
+            questionNum++;
+            if (questionNum > TOTAL_QUESTIONS) { endGame(); return; }
+            answered = false;
+            currentQ = generateQuestion();
+            document.getElementById('question').textContent = currentQ.text;
+            document.getElementById('q-label').textContent = `Question ${questionNum} of ${TOTAL_QUESTIONS}`;
+            document.getElementById('qnum').textContent = questionNum;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('streak-bonus').textContent = streak >= 3 ? `🔥 ${streak} streak bonus active!` : '';
+
+            // Render answers
+            const answersEl = document.getElementById('answers');
+            answersEl.innerHTML = '';
+            currentQ.options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = opt;
+                btn.onclick = () => selectAnswer(opt, btn);
+                answersEl.appendChild(btn);
+            });
+
+            // Timer
+            timeLeft = TIME_PER_QUESTION;
+            document.getElementById('timer-fill').style.width = '100%';
+            document.getElementById('timer-fill').classList.remove('warning');
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                let pct = (timeLeft / TIME_PER_QUESTION) * 100;
+                document.getElementById('timer-fill').style.width = pct + '%';
+                if (timeLeft <= 3) document.getElementById('timer-fill').classList.add('warning');
+                if (timeLeft <= 0) { clearInterval(timerInterval); timeUp(); }
+            }, 100);
+        }
+
+        function selectAnswer(opt, btn) {
+            if (answered) return;
+            answered = true;
+            clearInterval(timerInterval);
+            document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+
+            if (opt === currentQ.answer) {
+                btn.classList.add('correct');
+                streak++;
+                maxStreak = Math.max(maxStreak, streak);
+                let bonus = streak >= 5 ? 3 : streak >= 3 ? 2 : 1;
+                let points = 10 * bonus;
+                score += points;
+                correct++;
+                document.getElementById('feedback').textContent = '✓ Correct! +' + points;
+                document.getElementById('feedback').style.color = '#00d4aa';
+                difficulty = Math.min(difficulty + 0.5, 10);
+            } else {
+                btn.classList.add('wrong');
+                // Show correct
+                document.querySelectorAll('.answer-btn').forEach(b => { if (parseInt(b.textContent) === currentQ.answer) b.classList.add('correct'); });
+                streak = 0;
+                document.getElementById('feedback').textContent = '✗ Answer: ' + currentQ.answer;
+                document.getElementById('feedback').style.color = '#ff6584';
+            }
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            setTimeout(nextQuestion, 1500);
+        }
+
+        function timeUp() {
+            if (answered) return;
+            answered = true;
+            streak = 0;
+            document.querySelectorAll('.answer-btn').forEach(b => {
+                b.disabled = true;
+                if (parseInt(b.textContent) === currentQ.answer) b.classList.add('correct');
+            });
+            document.getElementById('feedback').textContent = '⏱ Time\'s up! Answer: ' + currentQ.answer;
+            document.getElementById('feedback').style.color = '#ffb347';
+            document.getElementById('streak').textContent = '0';
+            setTimeout(nextQuestion, 1500);
+        }
+
+        function endGame() {
+            document.getElementById('question-card').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            let pct = Math.round((correct / TOTAL_QUESTIONS) * 100);
+            let title = pct >= 90 ? '🏆 Amazing!' : pct >= 70 ? '🌟 Great Job!' : pct >= 50 ? '👍 Good Try!' : '💪 Keep Practicing!';
+            document.getElementById('result-title').textContent = title;
+            document.getElementById('result-stats').innerHTML = `Score: ${score} | Correct: ${correct}/${TOTAL_QUESTIONS} (${pct}%)<br>Max Streak: ${maxStreak} 🔥`;
+        }
+
+        // Show start
+        document.getElementById('question-card').style.display = 'none';
+    </script>
+</body>
+</html>

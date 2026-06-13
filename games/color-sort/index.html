@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Sort - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .info-bar { display: flex; gap: 2rem; margin: 1rem 0; font-size: 1rem; }
+        .info-bar span { color: #8888aa; }
+        .info-bar strong { color: #00d4aa; }
+        .tubes-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem; margin: 1.5rem 0; max-width: 550px; }
+        .tube { cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; }
+        .tube:hover { transform: translateY(-5px); }
+        .tube.selected { transform: translateY(-15px); }
+        .tube-body { width: 46px; border: 3px solid #6c63ff; border-radius: 0 0 20px 20px; padding: 3px; display: flex; flex-direction: column-reverse; gap: 3px; min-height: 160px; background: rgba(10, 10, 26, 0.8); justify-content: flex-start; }
+        .ball { width: 36px; height: 36px; border-radius: 50%; transition: all 0.3s; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3), inset 3px 3px 6px rgba(255,255,255,0.1); }
+        .tube-top { width: 50px; height: 8px; border: 3px solid #6c63ff; border-bottom: none; border-radius: 4px 4px 0 0; }
+        .level-btns { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .level-btn { padding: 0.4rem 0.8rem; background: #1a1a3e; border: 2px solid #6c63ff; border-radius: 15px; color: #e0e0ff; font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .level-btn:hover, .level-btn.active { background: #6c63ff; color: white; }
+        .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 0.6rem 1.5rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .btn.secondary { background: #1a1a3e; border: 2px solid #6c63ff; }
+        .message { margin-top: 1rem; font-size: 1.1rem; font-weight: 600; min-height: 1.5rem; color: #00d4aa; }
+        @media (max-width: 500px) { .tube-body { width: 38px; min-height: 130px; } .ball { width: 28px; height: 28px; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>🔮 Color Sort</h1>
+    <div class="info-bar">
+        <div><span>Level: </span><strong id="level">1</strong></div>
+        <div><span>Moves: </span><strong id="moves">0</strong></div>
+    </div>
+    <div class="level-btns" id="levels"></div>
+    <div class="tubes-container" id="tubes"></div>
+    <div class="actions">
+        <button class="btn secondary" onclick="undoMove()">↶ Undo</button>
+        <button class="btn secondary" onclick="loadLevel(currentLevel)">↺ Restart</button>
+        <button class="btn" onclick="nextLevel()">Next →</button>
+    </div>
+    <div class="message" id="message"></div>
+
+    <script>
+        const COLORS = ['#ff6584', '#6c63ff', '#00d4aa', '#ffb347', '#ff47b3', '#47b3ff', '#b347ff', '#ff8c47', '#47ff8c'];
+        const CAPACITY = 4;
+        let tubes = [], selectedTube = null, moves = 0, currentLevel = 0, history = [];
+
+        const levelConfigs = [
+            { colors: 3, extra: 2 },
+            { colors: 4, extra: 2 },
+            { colors: 5, extra: 2 },
+            { colors: 6, extra: 2 },
+            { colors: 7, extra: 2 }
+        ];
+
+        function createLevel(config) {
+            let balls = [];
+            for (let i = 0; i < config.colors; i++) {
+                for (let j = 0; j < CAPACITY; j++) {
+                    balls.push(COLORS[i]);
+                }
+            }
+            // Shuffle
+            for (let i = balls.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [balls[i], balls[j]] = [balls[j], balls[i]];
+            }
+            let t = [];
+            for (let i = 0; i < config.colors; i++) {
+                t.push(balls.slice(i * CAPACITY, (i + 1) * CAPACITY));
+            }
+            for (let i = 0; i < config.extra; i++) t.push([]);
+            return t;
+        }
+
+        function loadLevel(idx) {
+            currentLevel = idx;
+            tubes = createLevel(levelConfigs[idx]);
+            selectedTube = null;
+            moves = 0;
+            history = [];
+            document.getElementById('level').textContent = idx + 1;
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('message').textContent = '';
+            renderTubes();
+            renderLevelBtns();
+        }
+
+        function renderLevelBtns() {
+            const el = document.getElementById('levels');
+            el.innerHTML = '';
+            levelConfigs.forEach((_, i) => {
+                let btn = document.createElement('button');
+                btn.className = 'level-btn' + (i === currentLevel ? ' active' : '');
+                btn.textContent = 'Level ' + (i + 1);
+                btn.onclick = () => loadLevel(i);
+                el.appendChild(btn);
+            });
+        }
+
+        function renderTubes() {
+            const container = document.getElementById('tubes');
+            container.innerHTML = '';
+            tubes.forEach((tube, idx) => {
+                let tubeEl = document.createElement('div');
+                tubeEl.className = 'tube' + (selectedTube === idx ? ' selected' : '');
+                let top = document.createElement('div');
+                top.className = 'tube-top';
+                let body = document.createElement('div');
+                body.className = 'tube-body';
+                tube.forEach(color => {
+                    let ball = document.createElement('div');
+                    ball.className = 'ball';
+                    ball.style.background = color;
+                    body.appendChild(ball);
+                });
+                tubeEl.appendChild(top);
+                tubeEl.appendChild(body);
+                tubeEl.onclick = () => clickTube(idx);
+                container.appendChild(tubeEl);
+            });
+        }
+
+        function clickTube(idx) {
+            if (selectedTube === null) {
+                if (tubes[idx].length === 0) return;
+                selectedTube = idx;
+                renderTubes();
+            } else {
+                if (idx === selectedTube) {
+                    selectedTube = null;
+                    renderTubes();
+                    return;
+                }
+                if (canMove(selectedTube, idx)) {
+                    doMove(selectedTube, idx);
+                    selectedTube = null;
+                    moves++;
+                    document.getElementById('moves').textContent = moves;
+                    renderTubes();
+                    checkWin();
+                } else {
+                    // Select new tube if it has balls
+                    if (tubes[idx].length > 0) {
+                        selectedTube = idx;
+                    } else {
+                        selectedTube = null;
+                    }
+                    renderTubes();
+                }
+            }
+        }
+
+        function canMove(from, to) {
+            if (tubes[from].length === 0) return false;
+            if (tubes[to].length >= CAPACITY) return false;
+            if (tubes[to].length === 0) return true;
+            return tubes[to][tubes[to].length - 1] === tubes[from][tubes[from].length - 1];
+        }
+
+        function doMove(from, to) {
+            history.push(tubes.map(t => [...t]));
+            let ball = tubes[from].pop();
+            tubes[to].push(ball);
+        }
+
+        function undoMove() {
+            if (history.length === 0) return;
+            tubes = history.pop();
+            moves = Math.max(0, moves - 1);
+            document.getElementById('moves').textContent = moves;
+            selectedTube = null;
+            renderTubes();
+        }
+
+        function checkWin() {
+            let won = tubes.every(t => t.length === 0 || (t.length === CAPACITY && t.every(b => b === t[0])));
+            if (won) {
+                document.getElementById('message').textContent = '🎉 Level Complete! All colors sorted!';
+            }
+        }
+
+        function nextLevel() {
+            let next = (currentLevel + 1) % levelConfigs.length;
+            loadLevel(next);
+        }
+
+        loadLevel(0);
+    </script>
+</body>
+</html>

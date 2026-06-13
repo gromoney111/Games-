@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sliding Puzzle - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .info-bar { display: flex; gap: 2rem; margin: 1rem 0; font-size: 1.1rem; }
+        .info-bar span { color: #8888aa; }
+        .info-bar strong { color: #00d4aa; }
+        .puzzle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: #12122a; border: 3px solid #6c63ff; border-radius: 12px; padding: 8px; max-width: 360px; width: 100%; }
+        .tile { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #1a1a3e, #2a2a5e); border-radius: 8px; cursor: pointer; transition: all 0.15s ease; user-select: none; border: 2px solid rgba(108, 99, 255, 0.3); }
+        .tile:hover { transform: scale(0.95); background: linear-gradient(135deg, #2a2a5e, #3a3a7e); }
+        .tile.empty { background: transparent; border: 2px dashed rgba(108, 99, 255, 0.2); cursor: default; }
+        .tile.empty:hover { transform: none; }
+        .tile.correct { color: #00d4aa; border-color: rgba(0, 212, 170, 0.4); }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .message { margin-top: 1rem; font-size: 1.2rem; font-weight: 600; color: #00d4aa; min-height: 1.5rem; text-align: center; }
+        .controls { color: #8888aa; text-align: center; margin-top: 0.5rem; font-size: 0.9rem; }
+        @media (max-width: 400px) { .puzzle-grid { max-width: 100%; } .tile { font-size: 1.4rem; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>🧩 Sliding Puzzle</h1>
+    <div class="info-bar">
+        <div><span>Moves: </span><strong id="moves">0</strong></div>
+        <div><span>Time: </span><strong id="timer">0:00</strong></div>
+    </div>
+    <div class="puzzle-grid" id="grid"></div>
+    <div class="controls">Click a tile adjacent to the empty space to slide it</div>
+    <div class="message" id="message"></div>
+    <button class="btn" onclick="shuffle()">Shuffle & Start</button>
+
+    <script>
+        const SIZE = 4;
+        let tiles = [], moves = 0, seconds = 0, timerInterval, gameActive = false, won = false;
+
+        function init() {
+            tiles = [];
+            for (let i = 1; i < SIZE * SIZE; i++) tiles.push(i);
+            tiles.push(0); // empty
+            render();
+        }
+
+        function shuffle() {
+            // Perform random valid moves to ensure solvability
+            won = false;
+            moves = 0;
+            seconds = 0;
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('message').textContent = '';
+            if (timerInterval) clearInterval(timerInterval);
+
+            // Start from solved and make random moves
+            tiles = [];
+            for (let i = 1; i < SIZE * SIZE; i++) tiles.push(i);
+            tiles.push(0);
+
+            let emptyIdx = SIZE * SIZE - 1;
+            for (let i = 0; i < 200; i++) {
+                let neighbors = getMovableIndices(emptyIdx);
+                let rand = neighbors[Math.floor(Math.random() * neighbors.length)];
+                [tiles[emptyIdx], tiles[rand]] = [tiles[rand], tiles[emptyIdx]];
+                emptyIdx = rand;
+            }
+
+            gameActive = true;
+            timerInterval = setInterval(() => {
+                seconds++;
+                document.getElementById('timer').textContent = Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+            }, 1000);
+            render();
+        }
+
+        function getMovableIndices(emptyIdx) {
+            let row = Math.floor(emptyIdx / SIZE);
+            let col = emptyIdx % SIZE;
+            let neighbors = [];
+            if (row > 0) neighbors.push(emptyIdx - SIZE);
+            if (row < SIZE - 1) neighbors.push(emptyIdx + SIZE);
+            if (col > 0) neighbors.push(emptyIdx - 1);
+            if (col < SIZE - 1) neighbors.push(emptyIdx + 1);
+            return neighbors;
+        }
+
+        function clickTile(idx) {
+            if (!gameActive || won) return;
+            let emptyIdx = tiles.indexOf(0);
+            let neighbors = getMovableIndices(emptyIdx);
+            if (neighbors.includes(idx)) {
+                [tiles[emptyIdx], tiles[idx]] = [tiles[idx], tiles[emptyIdx]];
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                render();
+                checkWin();
+            }
+        }
+
+        function checkWin() {
+            for (let i = 0; i < SIZE * SIZE - 1; i++) {
+                if (tiles[i] !== i + 1) return;
+            }
+            won = true;
+            gameActive = false;
+            clearInterval(timerInterval);
+            document.getElementById('message').textContent = '🎉 Puzzle Solved! ' + moves + ' moves in ' + Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+        }
+
+        function render() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            tiles.forEach((tile, idx) => {
+                let el = document.createElement('div');
+                if (tile === 0) {
+                    el.className = 'tile empty';
+                } else {
+                    el.className = 'tile';
+                    el.textContent = tile;
+                    if (tile === idx + 1) el.classList.add('correct');
+                    el.onclick = () => clickTile(idx);
+                }
+                grid.appendChild(el);
+            });
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (!gameActive || won) return;
+            let emptyIdx = tiles.indexOf(0);
+            let row = Math.floor(emptyIdx / SIZE);
+            let col = emptyIdx % SIZE;
+            let targetIdx = -1;
+            switch (e.key) {
+                case 'ArrowUp': if (row < SIZE - 1) targetIdx = emptyIdx + SIZE; break;
+                case 'ArrowDown': if (row > 0) targetIdx = emptyIdx - SIZE; break;
+                case 'ArrowLeft': if (col < SIZE - 1) targetIdx = emptyIdx + 1; break;
+                case 'ArrowRight': if (col > 0) targetIdx = emptyIdx - 1; break;
+            }
+            if (targetIdx >= 0) { e.preventDefault(); clickTile(targetIdx); }
+        });
+
+        init();
+    </script>
+</body>
+</html>

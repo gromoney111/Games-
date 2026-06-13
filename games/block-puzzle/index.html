@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Puzzle - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .score-board { display: flex; gap: 2rem; margin: 1rem 0; font-size: 1.1rem; }
+        .score-board span { color: #8888aa; }
+        .score-board strong { color: #00d4aa; }
+        .board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #1a1a3e; border: 2px solid #6c63ff; border-radius: 8px; padding: 4px; max-width: 400px; width: 100%; }
+        .board-cell { aspect-ratio: 1; background: #0a0a1a; border-radius: 3px; transition: background 0.2s; }
+        .board-cell.filled { border-radius: 3px; }
+        .board-cell.highlight { background: rgba(108, 99, 255, 0.3); }
+        .board-cell.invalid { background: rgba(255, 101, 132, 0.3); }
+        .pieces-area { display: flex; gap: 1.5rem; margin-top: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        .piece-container { cursor: grab; padding: 0.5rem; border: 2px solid transparent; border-radius: 8px; transition: all 0.2s; }
+        .piece-container:hover { border-color: #6c63ff; }
+        .piece-container.selected { border-color: #00d4aa; background: rgba(0, 212, 170, 0.1); }
+        .piece-container.used { opacity: 0.2; pointer-events: none; }
+        .piece-grid { display: grid; gap: 2px; }
+        .piece-cell { width: 28px; height: 28px; border-radius: 3px; }
+        .piece-cell.filled { background: var(--piece-color); }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .game-over { display: none; text-align: center; margin-top: 1rem; }
+        .game-over h2 { color: #ff6584; font-size: 1.5rem; }
+        .controls { margin-top: 0.5rem; color: #8888aa; font-size: 0.85rem; text-align: center; }
+        @media (max-width: 500px) { .board { max-width: 100%; } .piece-cell { width: 22px; height: 22px; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>🧩 Block Puzzle</h1>
+    <div class="score-board">
+        <div><span>Score: </span><strong id="score">0</strong></div>
+        <div><span>Best: </span><strong id="best">0</strong></div>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="controls">Select a piece, then click on the board to place it</div>
+    <div class="pieces-area" id="pieces"></div>
+    <div class="game-over" id="gameover">
+        <h2>Game Over!</h2>
+        <p>No more moves available</p>
+        <button class="btn" onclick="newGame()">Play Again</button>
+    </div>
+    <button class="btn" onclick="newGame()" id="restart-btn" style="display:none">Restart</button>
+
+    <script>
+        const BOARD_SIZE = 10;
+        const COLORS = ['#6c63ff', '#ff6584', '#00d4aa', '#ffb347', '#ff47b3', '#47b3ff', '#b347ff'];
+        const SHAPES = [
+            [[1,1,1,1]],
+            [[1,1],[1,1]],
+            [[1,1,1],[0,0,1]],
+            [[1,1,1],[1,0,0]],
+            [[1,1,0],[0,1,1]],
+            [[1],[1],[1]],
+            [[1,1],[1,0]],
+            [[1,0],[1,1]],
+            [[1,1,1],[0,1,0]],
+            [[1]],
+            [[1,1]],
+            [[1,1,1,1,1]],
+            [[1,1,1],[1,1,1],[1,1,1]]
+        ];
+
+        let grid, score, best, pieces, selectedPiece;
+
+        function newGame() {
+            grid = Array.from({length: BOARD_SIZE}, () => Array(BOARD_SIZE).fill(0));
+            score = 0;
+            selectedPiece = null;
+            best = parseInt(localStorage.getItem('block-puzzle-best') || '0');
+            document.getElementById('score').textContent = '0';
+            document.getElementById('best').textContent = best;
+            document.getElementById('gameover').style.display = 'none';
+            document.getElementById('restart-btn').style.display = 'none';
+            generatePieces();
+            renderBoard();
+            renderPieces();
+        }
+
+        function generatePieces() {
+            pieces = [];
+            for (let i = 0; i < 3; i++) {
+                let shapeIdx = Math.floor(Math.random() * SHAPES.length);
+                pieces.push({
+                    shape: SHAPES[shapeIdx],
+                    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                    used: false
+                });
+            }
+        }
+
+        function renderBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    let cell = document.createElement('div');
+                    cell.className = 'board-cell' + (grid[r][c] ? ' filled' : '');
+                    if (grid[r][c]) cell.style.background = grid[r][c];
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    cell.addEventListener('click', () => placePiece(r, c));
+                    cell.addEventListener('mouseenter', () => previewPiece(r, c));
+                    cell.addEventListener('mouseleave', clearPreview);
+                    boardEl.appendChild(cell);
+                }
+            }
+        }
+
+        function renderPieces() {
+            const piecesEl = document.getElementById('pieces');
+            piecesEl.innerHTML = '';
+            pieces.forEach((piece, idx) => {
+                let container = document.createElement('div');
+                container.className = 'piece-container' + (piece.used ? ' used' : '') + (selectedPiece === idx ? ' selected' : '');
+                container.style.setProperty('--piece-color', piece.color);
+                let rows = piece.shape.length;
+                let cols = piece.shape[0].length;
+                let grid = document.createElement('div');
+                grid.className = 'piece-grid';
+                grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        let cell = document.createElement('div');
+                        cell.className = 'piece-cell' + (piece.shape[r][c] ? ' filled' : '');
+                        grid.appendChild(cell);
+                    }
+                }
+                container.appendChild(grid);
+                container.onclick = () => { if (!piece.used) { selectedPiece = idx; renderPieces(); } };
+                piecesEl.appendChild(container);
+            });
+        }
+
+        function canPlace(shape, startR, startC) {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[0].length; c++) {
+                    if (shape[r][c]) {
+                        let nr = startR + r, nc = startC + c;
+                        if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nc >= BOARD_SIZE || grid[nr][nc]) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function previewPiece(r, c) {
+            clearPreview();
+            if (selectedPiece === null) return;
+            let piece = pieces[selectedPiece];
+            let valid = canPlace(piece.shape, r, c);
+            let cells = document.querySelectorAll('.board-cell');
+            for (let dr = 0; dr < piece.shape.length; dr++) {
+                for (let dc = 0; dc < piece.shape[0].length; dc++) {
+                    if (piece.shape[dr][dc]) {
+                        let nr = r + dr, nc = c + dc;
+                        if (nr < BOARD_SIZE && nc < BOARD_SIZE) {
+                            let idx = nr * BOARD_SIZE + nc;
+                            cells[idx].classList.add(valid ? 'highlight' : 'invalid');
+                        }
+                    }
+                }
+            }
+        }
+
+        function clearPreview() {
+            document.querySelectorAll('.board-cell').forEach(c => c.classList.remove('highlight', 'invalid'));
+        }
+
+        function placePiece(startR, startC) {
+            if (selectedPiece === null) return;
+            let piece = pieces[selectedPiece];
+            if (!canPlace(piece.shape, startR, startC)) return;
+            // Place
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[0].length; c++) {
+                    if (piece.shape[r][c]) {
+                        grid[startR + r][startC + c] = piece.color;
+                    }
+                }
+            }
+            piece.used = true;
+            selectedPiece = null;
+            // Clear lines
+            clearLines();
+            renderBoard();
+            renderPieces();
+            // Check if all pieces used, generate new
+            if (pieces.every(p => p.used)) generatePieces();
+            renderPieces();
+            // Check game over
+            if (isGameOver()) {
+                if (score > best) {
+                    best = score;
+                    localStorage.setItem('block-puzzle-best', best);
+                    document.getElementById('best').textContent = best;
+                }
+                document.getElementById('gameover').style.display = 'block';
+            }
+        }
+
+        function clearLines() {
+            let cleared = 0;
+            // Check rows
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                if (grid[r].every(c => c)) {
+                    grid[r] = Array(BOARD_SIZE).fill(0);
+                    cleared++;
+                }
+            }
+            // Check columns
+            for (let c = 0; c < BOARD_SIZE; c++) {
+                if (grid.every(row => row[c])) {
+                    for (let r = 0; r < BOARD_SIZE; r++) grid[r][c] = 0;
+                    cleared++;
+                }
+            }
+            if (cleared > 0) {
+                score += cleared * 10 + (cleared > 1 ? cleared * 5 : 0);
+                document.getElementById('score').textContent = score;
+            }
+        }
+
+        function isGameOver() {
+            for (let piece of pieces) {
+                if (piece.used) continue;
+                for (let r = 0; r < BOARD_SIZE; r++) {
+                    for (let c = 0; c < BOARD_SIZE; c++) {
+                        if (canPlace(piece.shape, r, c)) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        newGame();
+    </script>
+</body>
+</html>

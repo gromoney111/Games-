@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkers - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .info-bar { display: flex; gap: 2rem; margin: 0.5rem 0; font-size: 1rem; flex-wrap: wrap; justify-content: center; }
+        .info-bar span { color: #8888aa; }
+        .info-bar strong { color: #00d4aa; }
+        .board { display: grid; grid-template-columns: repeat(8, 1fr); border: 3px solid #6c63ff; border-radius: 8px; overflow: hidden; max-width: 440px; width: 100%; margin-top: 1rem; }
+        .square { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+        .square.light { background: #2a2a5e; cursor: default; }
+        .square.dark { background: #12122a; }
+        .square.selected { background: rgba(0, 212, 170, 0.3) !important; }
+        .square.legal { background: rgba(108, 99, 255, 0.3) !important; }
+        .square.legal::after { content: ''; width: 16px; height: 16px; background: rgba(0, 212, 170, 0.5); border-radius: 50%; }
+        .piece { width: 40px; height: 40px; border-radius: 50%; position: absolute; transition: all 0.2s; cursor: pointer; }
+        .piece.red { background: radial-gradient(circle at 35% 35%, #ff8888, #cc3333); border: 3px solid #ff6584; }
+        .piece.black { background: radial-gradient(circle at 35% 35%, #555, #222); border: 3px solid #888; }
+        .piece.king::after { content: '♔'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem; }
+        .piece.red.king::after { color: #fff; }
+        .piece.black.king::after { color: #ffb347; }
+        .status { margin-top: 1rem; font-size: 1.1rem; font-weight: 600; text-align: center; min-height: 1.5rem; }
+        .status.win { color: #00d4aa; }
+        .btn { padding: 0.6rem 1.5rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; margin-top: 1rem; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .captures { display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.9rem; }
+        .captures span { color: #8888aa; }
+        @media (max-width: 500px) { .square { width: 44px; height: 44px; } .piece { width: 34px; height: 34px; } .board { max-width: 100%; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>🏁 Checkers</h1>
+    <div class="info-bar">
+        <div><span>Turn: </span><strong id="turn">Red (You)</strong></div>
+        <div><span>vs AI</span></div>
+    </div>
+    <div class="captures">
+        <span>Your captures: <strong id="red-captures">0</strong></span>
+        <span>AI captures: <strong id="black-captures">0</strong></span>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="status" id="status"></div>
+    <button class="btn" onclick="newGame()">New Game</button>
+
+    <script>
+        const SIZE = 8;
+        let board, selected, legalMoves, turn, gameOver, redCaptures, blackCaptures;
+        // Board: 0=empty, 1=red, 2=black, 3=red king, 4=black king
+
+        function newGame() {
+            board = Array.from({length: SIZE}, () => Array(SIZE).fill(0));
+            // Place pieces
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    if ((r + c) % 2 === 1) board[r][c] = 2; // black top
+                }
+            }
+            for (let r = 5; r < 8; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    if ((r + c) % 2 === 1) board[r][c] = 1; // red bottom
+                }
+            }
+            selected = null;
+            legalMoves = [];
+            turn = 'red';
+            gameOver = false;
+            redCaptures = 0;
+            blackCaptures = 0;
+            document.getElementById('status').textContent = '';
+            document.getElementById('status').className = 'status';
+            document.getElementById('turn').textContent = 'Red (You)';
+            document.getElementById('red-captures').textContent = '0';
+            document.getElementById('black-captures').textContent = '0';
+            render();
+        }
+
+        function isRed(p) { return p === 1 || p === 3; }
+        function isBlack(p) { return p === 2 || p === 4; }
+        function isKing(p) { return p === 3 || p === 4; }
+
+        function getMoves(r, c) {
+            let piece = board[r][c];
+            if (!piece) return [];
+            let moves = [];
+            let jumps = [];
+            let dirs = [];
+            if (isRed(piece) || isKing(piece)) dirs.push([-1, -1], [-1, 1]);
+            if (isBlack(piece) || isKing(piece)) dirs.push([1, -1], [1, 1]);
+
+            for (let [dr, dc] of dirs) {
+                let nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
+                    if (board[nr][nc] === 0) {
+                        moves.push({ r: nr, c: nc, jump: false });
+                    } else if ((isRed(piece) && isBlack(board[nr][nc])) || (isBlack(piece) && isRed(board[nr][nc]))) {
+                        // Jump
+                        let jr = nr + dr, jc = nc + dc;
+                        if (jr >= 0 && jr < SIZE && jc >= 0 && jc < SIZE && board[jr][jc] === 0) {
+                            jumps.push({ r: jr, c: jc, jump: true, captureR: nr, captureC: nc });
+                        }
+                    }
+                }
+            }
+            // Force jumps if available
+            return jumps.length > 0 ? jumps : moves;
+        }
+
+        function getAllMoves(color) {
+            let allMoves = [];
+            let hasJumps = false;
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    let p = board[r][c];
+                    if ((color === 'red' && isRed(p)) || (color === 'black' && isBlack(p))) {
+                        let moves = getMoves(r, c);
+                        if (moves.some(m => m.jump)) hasJumps = true;
+                        moves.forEach(m => allMoves.push({ fr: r, fc: c, ...m }));
+                    }
+                }
+            }
+            // Force jumps
+            if (hasJumps) allMoves = allMoves.filter(m => m.jump);
+            return allMoves;
+        }
+
+        function clickSquare(r, c) {
+            if (gameOver || turn !== 'red') return;
+            let piece = board[r][c];
+            // If clicking a legal move
+            if (selected && legalMoves.some(m => m.r === r && m.c === c)) {
+                let move = legalMoves.find(m => m.r === r && m.c === c);
+                makeMove(selected.r, selected.c, move);
+                return;
+            }
+            // Select own piece
+            if (isRed(piece)) {
+                selected = { r, c };
+                legalMoves = getMoves(r, c);
+                // Enforce forced jumps
+                let allMoves = getAllMoves('red');
+                if (allMoves.some(m => m.jump)) {
+                    legalMoves = legalMoves.filter(m => m.jump);
+                    // Only allow this piece if it has jumps
+                    if (legalMoves.length === 0) {
+                        selected = null;
+                        legalMoves = [];
+                    }
+                }
+                render();
+            }
+        }
+
+        function makeMove(fr, fc, move) {
+            board[move.r][move.c] = board[fr][fc];
+            board[fr][fc] = 0;
+            if (move.jump) {
+                board[move.captureR][move.captureC] = 0;
+                if (turn === 'red') { redCaptures++; document.getElementById('red-captures').textContent = redCaptures; }
+                else { blackCaptures++; document.getElementById('black-captures').textContent = blackCaptures; }
+                // Multi-jump
+                let moreJumps = getMoves(move.r, move.c).filter(m => m.jump);
+                if (moreJumps.length > 0) {
+                    selected = { r: move.r, c: move.c };
+                    legalMoves = moreJumps;
+                    // Promote before continuing
+                    promote(move.r, move.c);
+                    render();
+                    return;
+                }
+            }
+            promote(move.r, move.c);
+            selected = null;
+            legalMoves = [];
+            // Switch turn
+            turn = turn === 'red' ? 'black' : 'red';
+            document.getElementById('turn').textContent = turn === 'red' ? 'Red (You)' : 'Black (AI)';
+            render();
+            checkGameOver();
+            if (turn === 'black' && !gameOver) setTimeout(aiMove, 600);
+        }
+
+        function promote(r, c) {
+            if (board[r][c] === 1 && r === 0) board[r][c] = 3;
+            if (board[r][c] === 2 && r === 7) board[r][c] = 4;
+        }
+
+        function aiMove() {
+            if (gameOver) return;
+            let moves = getAllMoves('black');
+            if (moves.length === 0) { declareWinner('red'); return; }
+            // Prefer jumps, then random
+            let jumps = moves.filter(m => m.jump);
+            let move = jumps.length > 0 ? jumps[Math.floor(Math.random() * jumps.length)] : moves[Math.floor(Math.random() * moves.length)];
+            selected = { r: move.fr, c: move.fc };
+            makeMove(move.fr, move.fc, move);
+        }
+
+        function checkGameOver() {
+            let redMoves = getAllMoves('red');
+            let blackMoves = getAllMoves('black');
+            let redPieces = board.flat().filter(p => isRed(p)).length;
+            let blackPieces = board.flat().filter(p => isBlack(p)).length;
+            if (redPieces === 0 || (turn === 'red' && redMoves.length === 0)) declareWinner('black');
+            else if (blackPieces === 0 || (turn === 'black' && blackMoves.length === 0)) declareWinner('red');
+        }
+
+        function declareWinner(color) {
+            gameOver = true;
+            let msg = color === 'red' ? '🎉 You Win!' : '😔 AI Wins!';
+            document.getElementById('status').textContent = msg;
+            document.getElementById('status').className = 'status win';
+        }
+
+        function render() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    let sq = document.createElement('div');
+                    let isLight = (r + c) % 2 === 0;
+                    sq.className = 'square ' + (isLight ? 'light' : 'dark');
+                    if (selected && selected.r === r && selected.c === c) sq.classList.add('selected');
+                    if (legalMoves.some(m => m.r === r && m.c === c)) sq.classList.add('legal');
+                    if (board[r][c]) {
+                        let piece = document.createElement('div');
+                        piece.className = 'piece ' + (isRed(board[r][c]) ? 'red' : 'black') + (isKing(board[r][c]) ? ' king' : '');
+                        sq.appendChild(piece);
+                    }
+                    sq.onclick = () => clickSquare(r, c);
+                    boardEl.appendChild(sq);
+                }
+            }
+        }
+
+        newGame();
+    </script>
+</body>
+</html>

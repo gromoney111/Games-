@@ -4,8 +4,81 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GameZone - Free HTML5 Games</title>
-    <meta name="description" content="Play free HTML5 games online. Snake, Tetris, Flappy Bird, 2048 and more. No downloads needed!">
+    <meta name="description" content="Play 25+ free HTML5 games online. Puzzle, Arcade, Board Games, Brain teasers and more. No downloads needed!">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .category-filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+        }
+        .filter-btn {
+            padding: 0.5rem 1.2rem;
+            background: #12122a;
+            border: 2px solid rgba(108, 99, 255, 0.3);
+            border-radius: 25px;
+            color: #8888aa;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .filter-btn:hover {
+            border-color: #6c63ff;
+            color: #e0e0ff;
+            background: #1a1a3e;
+        }
+        .filter-btn.active {
+            background: linear-gradient(135deg, #6c63ff, #ff6584);
+            border-color: transparent;
+            color: white;
+        }
+        .category-heading {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.5rem;
+            padding-left: 1rem;
+            border-left: 4px solid var(--primary);
+            color: var(--text);
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .game-card.hidden {
+            display: none;
+        }
+        .cat-board { background: rgba(255, 179, 71, 0.2); color: #ffb347; }
+        .cat-brain { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .game-count {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-card:nth-child(11) .game-card-thumbnail { background: linear-gradient(135deg, #1a3347, #2d4a6b); }
+        .game-card:nth-child(12) .game-card-thumbnail { background: linear-gradient(135deg, #47331a, #6b4a2d); }
+        .game-card:nth-child(13) .game-card-thumbnail { background: linear-gradient(135deg, #1a472a, #2d6b45); }
+        .game-card:nth-child(14) .game-card-thumbnail { background: linear-gradient(135deg, #331a47, #4a2d6b); }
+        .game-card:nth-child(15) .game-card-thumbnail { background: linear-gradient(135deg, #471a33, #6b2d4a); }
+        .game-card:nth-child(16) .game-card-thumbnail { background: linear-gradient(135deg, #2a1a47, #4a2d6b); }
+        .game-card:nth-child(17) .game-card-thumbnail { background: linear-gradient(135deg, #1a4733, #2d6b4a); }
+        .game-card:nth-child(18) .game-card-thumbnail { background: linear-gradient(135deg, #47471a, #6b6b2d); }
+        .game-card:nth-child(19) .game-card-thumbnail { background: linear-gradient(135deg, #1a4747, #2d6b6b); }
+        .game-card:nth-child(20) .game-card-thumbnail { background: linear-gradient(135deg, #471a1a, #6b2d2d); }
+        .game-card:nth-child(21) .game-card-thumbnail { background: linear-gradient(135deg, #2a3347, #3d4a6b); }
+        .game-card:nth-child(22) .game-card-thumbnail { background: linear-gradient(135deg, #473a1a, #6b5a2d); }
+        .game-card:nth-child(23) .game-card-thumbnail { background: linear-gradient(135deg, #1a2a47, #2d3a6b); }
+        .game-card:nth-child(24) .game-card-thumbnail { background: linear-gradient(135deg, #3a1a47, #5a2d6b); }
+        .game-card:nth-child(25) .game-card-thumbnail { background: linear-gradient(135deg, #1a473a, #2d6b5a); }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -20,64 +93,30 @@
 
     <section class="hero">
         <h1>🎮 Play Free Games Online</h1>
-        <p>Enjoy 10 classic HTML5 games right in your browser. No downloads, no installs — just pure fun!</p>
+        <p>Enjoy 25 HTML5 games right in your browser. No downloads, no installs — just pure fun!</p>
     </section>
 
     <main class="games-section">
-        <h2 class="section-title">All Games</h2>
-        <div class="games-grid">
-            <!-- Snake -->
-            <div class="game-card" data-category="arcade">
-                <div class="game-card-thumbnail">🐍</div>
-                <div class="game-card-body">
-                    <span class="game-card-category cat-arcade">Arcade</span>
-                    <h3 class="game-card-title">Snake</h3>
-                    <p class="game-card-desc">Classic snake game. Eat food, grow longer, don't hit the walls!</p>
-                    <a href="games/snake/index.html" class="play-btn">Play Now</a>
-                </div>
-            </div>
+        <div class="category-filters">
+            <button class="filter-btn active" data-filter="all">🎮 All Games</button>
+            <button class="filter-btn" data-filter="puzzle">🧩 Puzzle</button>
+            <button class="filter-btn" data-filter="arcade">🎮 Arcade</button>
+            <button class="filter-btn" data-filter="board">🃏 Card & Board</button>
+            <button class="filter-btn" data-filter="brain">💡 Brain & Trivia</button>
+            <button class="filter-btn" data-filter="casual">🎯 Casual</button>
+        </div>
+        <div class="game-count" id="game-count">Showing 25 games</div>
 
-            <!-- Tetris -->
+        <div class="games-grid" id="games-grid">
+            <!-- PUZZLE GAMES -->
+            <!-- Sudoku -->
             <div class="game-card" data-category="puzzle">
-                <div class="game-card-thumbnail">🧱</div>
+                <div class="game-card-thumbnail">🔢</div>
                 <div class="game-card-body">
                     <span class="game-card-category cat-puzzle">Puzzle</span>
-                    <h3 class="game-card-title">Tetris</h3>
-                    <p class="game-card-desc">Arrange falling blocks to clear lines. How long can you last?</p>
-                    <a href="games/tetris/index.html" class="play-btn">Play Now</a>
-                </div>
-            </div>
-
-            <!-- Flappy Bird -->
-            <div class="game-card" data-category="arcade">
-                <div class="game-card-thumbnail">🐦</div>
-                <div class="game-card-body">
-                    <span class="game-card-category cat-arcade">Arcade</span>
-                    <h3 class="game-card-title">Flappy Bird</h3>
-                    <p class="game-card-desc">Tap to fly through the pipes. One touch is all you need!</p>
-                    <a href="games/flappy-bird/index.html" class="play-btn">Play Now</a>
-                </div>
-            </div>
-
-            <!-- Memory Cards -->
-            <div class="game-card" data-category="puzzle">
-                <div class="game-card-thumbnail">🃏</div>
-                <div class="game-card-body">
-                    <span class="game-card-category cat-puzzle">Puzzle</span>
-                    <h3 class="game-card-title">Memory Cards</h3>
-                    <p class="game-card-desc">Flip cards and find matching pairs. Test your memory!</p>
-                    <a href="games/memory-cards/index.html" class="play-btn">Play Now</a>
-                </div>
-            </div>
-
-            <!-- Tic Tac Toe -->
-            <div class="game-card" data-category="strategy">
-                <div class="game-card-thumbnail">❌⭕</div>
-                <div class="game-card-body">
-                    <span class="game-card-category cat-strategy">Strategy</span>
-                    <h3 class="game-card-title">Tic Tac Toe</h3>
-                    <p class="game-card-desc">Challenge the AI in this classic strategy game!</p>
-                    <a href="games/tic-tac-toe/index.html" class="play-btn">Play Now</a>
+                    <h3 class="game-card-title">Sudoku</h3>
+                    <p class="game-card-desc">Fill the 9x9 grid with numbers. 3 difficulty levels!</p>
+                    <a href="games/sudoku/index.html" class="play-btn">Play Now</a>
                 </div>
             </div>
 
@@ -92,6 +131,84 @@
                 </div>
             </div>
 
+            <!-- Block Puzzle -->
+            <div class="game-card" data-category="puzzle">
+                <div class="game-card-thumbnail">🧩</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-puzzle">Puzzle</span>
+                    <h3 class="game-card-title">Block Puzzle</h3>
+                    <p class="game-card-desc">Fit blocks on the 10x10 grid. Clear rows and columns!</p>
+                    <a href="games/block-puzzle/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Sliding Puzzle -->
+            <div class="game-card" data-category="puzzle">
+                <div class="game-card-thumbnail">🔲</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-puzzle">Puzzle</span>
+                    <h3 class="game-card-title">Sliding Puzzle</h3>
+                    <p class="game-card-desc">Slide numbered tiles into order. Classic 15-puzzle challenge!</p>
+                    <a href="games/sliding-puzzle/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Water Sort -->
+            <div class="game-card" data-category="puzzle">
+                <div class="game-card-thumbnail">💧</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-puzzle">Puzzle</span>
+                    <h3 class="game-card-title">Water Sort</h3>
+                    <p class="game-card-desc">Pour colored water between bottles to sort them!</p>
+                    <a href="games/water-sort/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Color Sort -->
+            <div class="game-card" data-category="puzzle">
+                <div class="game-card-thumbnail">🔮</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-puzzle">Puzzle</span>
+                    <h3 class="game-card-title">Color Sort</h3>
+                    <p class="game-card-desc">Sort colored balls into tubes. 5 levels of difficulty!</p>
+                    <a href="games/color-sort/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Crossword -->
+            <div class="game-card" data-category="puzzle">
+                <div class="game-card-thumbnail">📰</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-puzzle">Puzzle</span>
+                    <h3 class="game-card-title">Crossword</h3>
+                    <p class="game-card-desc">Solve crossword clues and fill the grid. Programming theme!</p>
+                    <a href="games/crossword/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- ARCADE GAMES -->
+            <!-- Snake -->
+            <div class="game-card" data-category="arcade">
+                <div class="game-card-thumbnail">🐍</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-arcade">Arcade</span>
+                    <h3 class="game-card-title">Snake</h3>
+                    <p class="game-card-desc">Classic snake game. Eat food, grow longer, don't hit the walls!</p>
+                    <a href="games/snake/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Flappy Bird -->
+            <div class="game-card" data-category="arcade">
+                <div class="game-card-thumbnail">🐦</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-arcade">Arcade</span>
+                    <h3 class="game-card-title">Flappy Bird</h3>
+                    <p class="game-card-desc">Tap to fly through the pipes. One touch is all you need!</p>
+                    <a href="games/flappy-bird/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
             <!-- Breakout -->
             <div class="game-card" data-category="arcade">
                 <div class="game-card-thumbnail">🧱💥</div>
@@ -100,6 +217,163 @@
                     <h3 class="game-card-title">Breakout</h3>
                     <p class="game-card-desc">Bounce the ball and break all the bricks. 3 lives!</p>
                     <a href="games/breakout/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Endless Runner -->
+            <div class="game-card" data-category="arcade">
+                <div class="game-card-thumbnail">🏃</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-arcade">Arcade</span>
+                    <h3 class="game-card-title">Endless Runner</h3>
+                    <p class="game-card-desc">Jump over obstacles! How far can you run? Double jump!</p>
+                    <a href="games/endless-runner/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Space Shooter -->
+            <div class="game-card" data-category="arcade">
+                <div class="game-card-thumbnail">🚀</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-arcade">Arcade</span>
+                    <h3 class="game-card-title">Space Shooter</h3>
+                    <p class="game-card-desc">Defend Earth! Shoot enemies, collect power-ups, defeat bosses!</p>
+                    <a href="games/space-shooter/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- CARD & BOARD GAMES -->
+            <!-- Solitaire -->
+            <div class="game-card" data-category="board">
+                <div class="game-card-thumbnail">🃏</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-board">Card & Board</span>
+                    <h3 class="game-card-title">Solitaire</h3>
+                    <p class="game-card-desc">Classic Klondike solitaire. Stack cards to win!</p>
+                    <a href="games/solitaire/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Chess -->
+            <div class="game-card" data-category="board">
+                <div class="game-card-thumbnail">♟</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-board">Card & Board</span>
+                    <h3 class="game-card-title">Chess</h3>
+                    <p class="game-card-desc">Play chess against AI. Full rules with check detection!</p>
+                    <a href="games/chess/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Checkers -->
+            <div class="game-card" data-category="board">
+                <div class="game-card-thumbnail">🏁</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-board">Card & Board</span>
+                    <h3 class="game-card-title">Checkers</h3>
+                    <p class="game-card-desc">Classic checkers vs AI. Jump and king your pieces!</p>
+                    <a href="games/checkers/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Tic Tac Toe -->
+            <div class="game-card" data-category="board">
+                <div class="game-card-thumbnail">❌⭕</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-board">Card & Board</span>
+                    <h3 class="game-card-title">Tic Tac Toe</h3>
+                    <p class="game-card-desc">Challenge the AI in this classic strategy game!</p>
+                    <a href="games/tic-tac-toe/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Memory Cards -->
+            <div class="game-card" data-category="board">
+                <div class="game-card-thumbnail">🎴</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-board">Card & Board</span>
+                    <h3 class="game-card-title">Memory Cards</h3>
+                    <p class="game-card-desc">Flip cards and find matching pairs. Test your memory!</p>
+                    <a href="games/memory-cards/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- BRAIN & TRIVIA -->
+            <!-- Word Search -->
+            <div class="game-card" data-category="brain">
+                <div class="game-card-thumbnail">🔍</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-brain">Brain & Trivia</span>
+                    <h3 class="game-card-title">Word Search</h3>
+                    <p class="game-card-desc">Find hidden words in the grid. Multiple themes!</p>
+                    <a href="games/word-search/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Word Scramble -->
+            <div class="game-card" data-category="brain">
+                <div class="game-card-thumbnail">📝</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-brain">Brain & Trivia</span>
+                    <h3 class="game-card-title">Word Scramble</h3>
+                    <p class="game-card-desc">Unscramble the letters to find the hidden word!</p>
+                    <a href="games/word-scramble/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Quiz -->
+            <div class="game-card" data-category="brain">
+                <div class="game-card-thumbnail">🧠</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-brain">Brain & Trivia</span>
+                    <h3 class="game-card-title">Quiz Game</h3>
+                    <p class="game-card-desc">Test your knowledge with 10 trivia questions!</p>
+                    <a href="games/quiz/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Math Challenge -->
+            <div class="game-card" data-category="brain">
+                <div class="game-card-thumbnail">🧮</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-brain">Brain & Trivia</span>
+                    <h3 class="game-card-title">Math Challenge</h3>
+                    <p class="game-card-desc">Solve math problems fast! 20 questions, streak bonuses!</p>
+                    <a href="games/math-challenge/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Match 3 -->
+            <div class="game-card" data-category="brain">
+                <div class="game-card-thumbnail">💎</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-brain">Brain & Trivia</span>
+                    <h3 class="game-card-title">Match 3</h3>
+                    <p class="game-card-desc">Swap gems to match 3+ in a row. Chain combos for big points!</p>
+                    <a href="games/match3/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- CASUAL -->
+            <!-- Tetris -->
+            <div class="game-card" data-category="casual">
+                <div class="game-card-thumbnail">🧱</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-casual">Casual</span>
+                    <h3 class="game-card-title">Tetris</h3>
+                    <p class="game-card-desc">Arrange falling blocks to clear lines. How long can you last?</p>
+                    <a href="games/tetris/index.html" class="play-btn">Play Now</a>
+                </div>
+            </div>
+
+            <!-- Bubble Shooter -->
+            <div class="game-card" data-category="casual">
+                <div class="game-card-thumbnail">🫧</div>
+                <div class="game-card-body">
+                    <span class="game-card-category cat-casual">Casual</span>
+                    <h3 class="game-card-title">Bubble Shooter</h3>
+                    <p class="game-card-desc">Aim and shoot bubbles to match 3+ same color!</p>
+                    <a href="games/bubble-shooter/index.html" class="play-btn">Play Now</a>
                 </div>
             </div>
 
@@ -113,28 +387,6 @@
                     <a href="games/whack-a-mole/index.html" class="play-btn">Play Now</a>
                 </div>
             </div>
-
-            <!-- Quiz -->
-            <div class="game-card" data-category="trivia">
-                <div class="game-card-thumbnail">🧠</div>
-                <div class="game-card-body">
-                    <span class="game-card-category cat-trivia">Trivia</span>
-                    <h3 class="game-card-title">Quiz Game</h3>
-                    <p class="game-card-desc">Test your knowledge with 10 trivia questions!</p>
-                    <a href="games/quiz/index.html" class="play-btn">Play Now</a>
-                </div>
-            </div>
-
-            <!-- Word Scramble -->
-            <div class="game-card" data-category="puzzle">
-                <div class="game-card-thumbnail">📝</div>
-                <div class="game-card-body">
-                    <span class="game-card-category cat-puzzle">Puzzle</span>
-                    <h3 class="game-card-title">Word Scramble</h3>
-                    <p class="game-card-desc">Unscramble the letters to find the hidden word!</p>
-                    <a href="games/word-scramble/index.html" class="play-btn">Play Now</a>
-                </div>
-            </div>
         </div>
     </main>
 
@@ -143,9 +395,36 @@
             <a href="index.html">Home</a>
             <a href="about.html">About</a>
         </div>
-        <p>&copy; 2024 GameZone. All games are free to play.</p>
+        <p>&copy; 2024 GameZone. All games are free to play. 25 games and counting!</p>
     </footer>
 
-    <script src="js/main.js"></script>
+    <script>
+        // Category filter functionality
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const gameCards = document.querySelectorAll('.game-card');
+        const gameCount = document.getElementById('game-count');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active button
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filter = btn.dataset.filter;
+                let visibleCount = 0;
+
+                gameCards.forEach(card => {
+                    if (filter === 'all' || card.dataset.category === filter) {
+                        card.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                gameCount.textContent = `Showing ${visibleCount} game${visibleCount !== 1 ? 's' : ''}`;
+            });
+        });
+    </script>
 </body>
 </html>

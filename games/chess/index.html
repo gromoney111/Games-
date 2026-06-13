@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .info-bar { display: flex; gap: 2rem; margin: 0.5rem 0; font-size: 1rem; flex-wrap: wrap; justify-content: center; }
+        .info-bar span { color: #8888aa; }
+        .info-bar strong { color: #00d4aa; }
+        .game-area { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; align-items: flex-start; margin-top: 1rem; }
+        .chess-board { display: grid; grid-template-columns: repeat(8, 1fr); border: 3px solid #6c63ff; border-radius: 8px; overflow: hidden; }
+        .square { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; cursor: pointer; transition: all 0.2s; user-select: none; }
+        .square.light { background: #2a2a5e; }
+        .square.dark { background: #12122a; }
+        .square.selected { background: rgba(0, 212, 170, 0.4) !important; }
+        .square.legal-move { background: rgba(108, 99, 255, 0.4) !important; }
+        .square.legal-move::after { content: ''; width: 14px; height: 14px; background: rgba(0, 212, 170, 0.6); border-radius: 50%; position: absolute; }
+        .square.in-check { background: rgba(255, 101, 132, 0.5) !important; }
+        .square { position: relative; }
+        .move-history { background: #12122a; border: 2px solid #6c63ff; border-radius: 8px; padding: 1rem; max-height: 400px; overflow-y: auto; min-width: 160px; max-width: 200px; }
+        .move-history h3 { font-size: 0.9rem; color: #6c63ff; margin-bottom: 0.5rem; }
+        .move-history .move { font-size: 0.8rem; color: #8888aa; padding: 2px 0; }
+        .status { margin-top: 1rem; font-size: 1.1rem; font-weight: 600; text-align: center; min-height: 1.5rem; }
+        .status.check { color: #ff6584; }
+        .status.win { color: #00d4aa; }
+        .btn { padding: 0.6rem 1.5rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; margin-top: 1rem; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        @media (max-width: 600px) { .square { width: 42px; height: 42px; font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>♟ Chess</h1>
+    <div class="info-bar">
+        <div><span>Turn: </span><strong id="turn">White</strong></div>
+        <div><span>vs AI (Random Moves)</span></div>
+    </div>
+    <div class="game-area">
+        <div class="chess-board" id="board"></div>
+        <div class="move-history" id="history"><h3>Moves</h3></div>
+    </div>
+    <div class="status" id="status"></div>
+    <button class="btn" onclick="newGame()">New Game</button>
+
+    <script>
+        const PIECES = { K:'♔', Q:'♕', R:'♖', B:'♗', N:'♘', P:'♙', k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' };
+        let board, selected, legalMoves, turn, moveHistory, gameOver;
+
+        function initialBoard() {
+            return [
+                ['r','n','b','q','k','b','n','r'],
+                ['p','p','p','p','p','p','p','p'],
+                ['','','','','','','',''],
+                ['','','','','','','',''],
+                ['','','','','','','',''],
+                ['','','','','','','',''],
+                ['P','P','P','P','P','P','P','P'],
+                ['R','N','B','Q','K','B','N','R']
+            ];
+        }
+
+        function isWhite(p) { return p && p === p.toUpperCase(); }
+        function isBlack(p) { return p && p === p.toLowerCase(); }
+        function isOwn(p, white) { return white ? isWhite(p) : isBlack(p); }
+        function isEnemy(p, white) { return white ? isBlack(p) : isWhite(p); }
+
+        function newGame() {
+            board = initialBoard();
+            selected = null;
+            legalMoves = [];
+            turn = 'white';
+            moveHistory = [];
+            gameOver = false;
+            document.getElementById('status').textContent = '';
+            document.getElementById('status').className = 'status';
+            document.getElementById('history').innerHTML = '<h3>Moves</h3>';
+            document.getElementById('turn').textContent = 'White';
+            render();
+        }
+
+        function render() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            let kingPos = findKing(turn === 'white');
+            let inCheck = isInCheck(board, turn === 'white');
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    let sq = document.createElement('div');
+                    let isLight = (r + c) % 2 === 0;
+                    sq.className = 'square ' + (isLight ? 'light' : 'dark');
+                    if (selected && selected.r === r && selected.c === c) sq.classList.add('selected');
+                    if (legalMoves.some(m => m.r === r && m.c === c)) sq.classList.add('legal-move');
+                    if (inCheck && r === kingPos.r && c === kingPos.c) sq.classList.add('in-check');
+                    if (board[r][c]) sq.textContent = PIECES[board[r][c]] || '';
+                    sq.onclick = () => clickSquare(r, c);
+                    boardEl.appendChild(sq);
+                }
+            }
+        }
+
+        function clickSquare(r, c) {
+            if (gameOver || turn !== 'white') return;
+            let piece = board[r][c];
+            // If a legal move is clicked, make the move
+            if (selected && legalMoves.some(m => m.r === r && m.c === c)) {
+                makeMove(selected.r, selected.c, r, c);
+                selected = null;
+                legalMoves = [];
+                return;
+            }
+            // Select own piece
+            if (piece && isWhite(piece)) {
+                selected = { r, c };
+                legalMoves = getLegalMoves(r, c, true);
+                render();
+            } else {
+                selected = null;
+                legalMoves = [];
+                render();
+            }
+        }
+
+        function makeMove(fr, fc, tr, tc) {
+            let piece = board[fr][fc];
+            let captured = board[tr][tc];
+            board[tr][tc] = piece;
+            board[fr][fc] = '';
+            // Pawn promotion
+            if (piece === 'P' && tr === 0) board[tr][tc] = 'Q';
+            if (piece === 'p' && tr === 7) board[tr][tc] = 'q';
+            let notation = (PIECES[piece] || '') + String.fromCharCode(97 + fc) + (8 - fr) + (captured ? 'x' : '') + String.fromCharCode(97 + tc) + (8 - tr);
+            moveHistory.push(notation);
+            let histEl = document.getElementById('history');
+            let moveEl = document.createElement('div');
+            moveEl.className = 'move';
+            moveEl.textContent = (moveHistory.length % 2 === 1 ? Math.ceil(moveHistory.length / 2) + '. ' : '   ') + notation;
+            histEl.appendChild(moveEl);
+            histEl.scrollTop = histEl.scrollHeight;
+            // Switch turn
+            turn = turn === 'white' ? 'black' : 'white';
+            document.getElementById('turn').textContent = turn.charAt(0).toUpperCase() + turn.slice(1);
+            render();
+            // Check game state
+            if (isCheckmate(turn === 'white')) {
+                gameOver = true;
+                let winner = turn === 'white' ? 'Black' : 'White';
+                document.getElementById('status').textContent = '♚ Checkmate! ' + winner + ' wins!';
+                document.getElementById('status').className = 'status win';
+                return;
+            }
+            if (isInCheck(board, turn === 'white')) {
+                document.getElementById('status').textContent = '⚠ Check!';
+                document.getElementById('status').className = 'status check';
+            } else {
+                document.getElementById('status').textContent = '';
+                document.getElementById('status').className = 'status';
+            }
+            // AI move
+            if (turn === 'black' && !gameOver) {
+                setTimeout(aiMove, 500);
+            }
+        }
+
+        function aiMove() {
+            let allMoves = [];
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                if (isBlack(board[r][c])) {
+                    let moves = getLegalMoves(r, c, false);
+                    moves.forEach(m => allMoves.push({ fr: r, fc: c, tr: m.r, tc: m.c }));
+                }
+            }
+            if (allMoves.length === 0) {
+                gameOver = true;
+                if (isInCheck(board, false)) {
+                    document.getElementById('status').textContent = '♚ Checkmate! White wins!';
+                    document.getElementById('status').className = 'status win';
+                } else {
+                    document.getElementById('status').textContent = 'Stalemate!';
+                    document.getElementById('status').className = 'status';
+                }
+                return;
+            }
+            // Prefer captures, then random
+            let captures = allMoves.filter(m => board[m.tr][m.tc] && isWhite(board[m.tr][m.tc]));
+            let move = captures.length > 0 ? captures[Math.floor(Math.random() * captures.length)] : allMoves[Math.floor(Math.random() * allMoves.length)];
+            makeMove(move.fr, move.fc, move.tr, move.tc);
+        }
+
+        function getRawMoves(r, c, white) {
+            let piece = board[r][c].toLowerCase();
+            let moves = [];
+            let dirs;
+            switch (piece) {
+                case 'p':
+                    let dir = white ? -1 : 1;
+                    let startRow = white ? 6 : 1;
+                    if (r + dir >= 0 && r + dir < 8 && !board[r + dir][c]) {
+                        moves.push({ r: r + dir, c });
+                        if (r === startRow && !board[r + 2 * dir][c]) moves.push({ r: r + 2 * dir, c });
+                    }
+                    for (let dc of [-1, 1]) {
+                        let nc = c + dc;
+                        if (nc >= 0 && nc < 8 && r + dir >= 0 && r + dir < 8 && board[r + dir][nc] && isEnemy(board[r + dir][nc], white)) {
+                            moves.push({ r: r + dir, c: nc });
+                        }
+                    }
+                    break;
+                case 'n':
+                    for (let [dr, dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]) {
+                        let nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && !isOwn(board[nr][nc], white)) moves.push({ r: nr, c: nc });
+                    }
+                    break;
+                case 'b':
+                    dirs = [[-1,-1],[-1,1],[1,-1],[1,1]];
+                    for (let [dr, dc] of dirs) { slideMoves(r, c, dr, dc, white, moves); }
+                    break;
+                case 'r':
+                    dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+                    for (let [dr, dc] of dirs) { slideMoves(r, c, dr, dc, white, moves); }
+                    break;
+                case 'q':
+                    dirs = [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]];
+                    for (let [dr, dc] of dirs) { slideMoves(r, c, dr, dc, white, moves); }
+                    break;
+                case 'k':
+                    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        let nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && !isOwn(board[nr][nc], white)) moves.push({ r: nr, c: nc });
+                    }
+                    break;
+            }
+            return moves;
+        }
+
+        function slideMoves(r, c, dr, dc, white, moves) {
+            let nr = r + dr, nc = c + dc;
+            while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                if (isOwn(board[nr][nc], white)) break;
+                moves.push({ r: nr, c: nc });
+                if (isEnemy(board[nr][nc], white)) break;
+                nr += dr; nc += dc;
+            }
+        }
+
+        function findKing(white) {
+            let k = white ? 'K' : 'k';
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { if (board[r][c] === k) return { r, c }; }
+            return { r: 0, c: 0 };
+        }
+
+        function isInCheck(bd, white) {
+            let kingPos = null;
+            let k = white ? 'K' : 'k';
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) { if (bd[r][c] === k) { kingPos = { r, c }; break; } }
+            if (!kingPos) return false;
+            // Check if any enemy piece can attack king
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                if (isEnemy(bd[r][c], white)) {
+                    let moves = getRawMoves(r, c, !white);
+                    if (moves.some(m => m.r === kingPos.r && m.c === kingPos.c)) return true;
+                }
+            }
+            return false;
+        }
+
+        function getLegalMoves(r, c, white) {
+            let raw = getRawMoves(r, c, white);
+            return raw.filter(m => {
+                // Simulate move
+                let orig = board[m.r][m.c];
+                let piece = board[r][c];
+                board[m.r][m.c] = piece;
+                board[r][c] = '';
+                let legal = !isInCheck(board, white);
+                board[r][c] = piece;
+                board[m.r][m.c] = orig;
+                return legal;
+            });
+        }
+
+        function isCheckmate(white) {
+            for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+                if (isOwn(board[r][c], white)) {
+                    if (getLegalMoves(r, c, white).length > 0) return false;
+                }
+            }
+            return true;
+        }
+
+        newGame();
+    </script>
+</body>
+</html>

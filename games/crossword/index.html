@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossword - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .game-area { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; align-items: flex-start; margin-top: 1rem; }
+        .crossword-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
+        .cw-cell { width: 38px; height: 38px; position: relative; }
+        .cw-cell.black { background: #0a0a1a; }
+        .cw-cell.white { background: #1a1a3e; border: 1px solid #6c63ff; cursor: pointer; }
+        .cw-cell.white:hover { background: #2a2a5e; }
+        .cw-cell.selected { background: #2a2a5e !important; box-shadow: inset 0 0 0 2px #00d4aa; }
+        .cw-cell.highlight { background: rgba(108, 99, 255, 0.2) !important; }
+        .cw-cell .number { position: absolute; top: 1px; left: 2px; font-size: 0.55rem; color: #8888aa; }
+        .cw-cell input { width: 100%; height: 100%; background: transparent; border: none; color: #e0e0ff; font-size: 1.1rem; font-weight: 700; text-align: center; text-transform: uppercase; outline: none; font-family: 'Poppins', sans-serif; }
+        .cw-cell.correct input { color: #00d4aa; }
+        .cw-cell.wrong input { color: #ff6584; }
+        .clues { max-width: 300px; }
+        .clues h3 { font-size: 1rem; color: #6c63ff; margin: 1rem 0 0.5rem; }
+        .clue { font-size: 0.85rem; color: #8888aa; padding: 0.3rem 0; cursor: pointer; transition: color 0.2s; }
+        .clue:hover { color: #e0e0ff; }
+        .clue.solved { color: #00d4aa; text-decoration: line-through; }
+        .actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 0.6rem 1.2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .btn.secondary { background: #1a1a3e; border: 2px solid #6c63ff; }
+        .message { margin-top: 1rem; font-size: 1rem; font-weight: 600; color: #00d4aa; min-height: 1.5rem; }
+        @media (max-width: 600px) { .cw-cell { width: 32px; height: 32px; } .cw-cell .number { font-size: 0.5rem; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>📰 Crossword</h1>
+    <div class="game-area">
+        <div class="crossword-grid" id="grid"></div>
+        <div class="clues" id="clues"></div>
+    </div>
+    <div class="actions">
+        <button class="btn secondary" onclick="checkAnswers()">Check</button>
+        <button class="btn secondary" onclick="revealHint()">Reveal Letter</button>
+        <button class="btn" onclick="newGame()">New Puzzle</button>
+    </div>
+    <div class="message" id="message"></div>
+
+    <script>
+        // Pre-made crossword puzzle
+        const puzzle = {
+            grid: [
+                // 10x10 grid, 0 = black, letter = white
+                ['P','Y','T','H','O','N',0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0],
+                ['C','O','D','I','N','G',0,'J','A','V'],
+                [0,0,0,0,0,0,0,0,0,0],
+                [0,'H','T','M','L',0,0,0,0,0],
+                [0,0,0,0,'I',0,'R','U','S','T'],
+                [0,0,0,0,'N',0,0,0,0,0],
+                ['S','W','I','F','T',0,0,0,0,0],
+                [0,0,0,0,'X',0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0]
+            ],
+            cluesAcross: [
+                { num: 1, row: 0, col: 0, answer: 'PYTHON', clue: 'Popular programming language named after a snake' },
+                { num: 3, row: 2, col: 0, answer: 'CODING', clue: 'The process of writing computer programs' },
+                { num: 4, row: 2, col: 7, answer: 'JAV', clue: 'First 3 letters of a coffee-named language' },
+                { num: 5, row: 4, col: 1, answer: 'HTML', clue: 'Markup language for web pages' },
+                { num: 7, row: 5, col: 6, answer: 'RUST', clue: 'Systems language focused on safety' },
+                { num: 8, row: 7, col: 0, answer: 'SWIFT', clue: 'Apple\'s programming language' }
+            ],
+            cluesDown: [
+                { num: 2, row: 0, col: 4, answer: 'ONLINX', clue: 'O + starts of Linux (downward)' },
+                { num: 6, row: 4, col: 4, answer: 'LINTX', clue: 'L + part of the grid going down' }
+            ]
+        };
+
+        let userGrid = [], selectedCell = null, direction = 'across';
+
+        function newGame() {
+            userGrid = puzzle.grid.map(row => row.map(cell => cell === 0 ? 0 : ''));
+            selectedCell = null;
+            document.getElementById('message').textContent = '';
+            render();
+        }
+
+        function render() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            // Number cells
+            let numbers = {};
+            puzzle.cluesAcross.forEach(c => { numbers[c.row + ',' + c.col] = c.num; });
+            puzzle.cluesDown.forEach(c => { if (!numbers[c.row + ',' + c.col]) numbers[c.row + ',' + c.col] = c.num; });
+
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    let cell = document.createElement('div');
+                    if (puzzle.grid[r][c] === 0) {
+                        cell.className = 'cw-cell black';
+                    } else {
+                        cell.className = 'cw-cell white';
+                        if (selectedCell && selectedCell.r === r && selectedCell.c === c) cell.classList.add('selected');
+                        let numKey = r + ',' + c;
+                        if (numbers[numKey]) {
+                            let numEl = document.createElement('span');
+                            numEl.className = 'number';
+                            numEl.textContent = numbers[numKey];
+                            cell.appendChild(numEl);
+                        }
+                        let input = document.createElement('input');
+                        input.maxLength = 1;
+                        input.value = userGrid[r][c] || '';
+                        input.addEventListener('focus', () => { selectedCell = { r, c }; render(); });
+                        input.addEventListener('input', (e) => {
+                            let val = e.target.value.toUpperCase();
+                            userGrid[r][c] = val;
+                            // Move to next cell
+                            moveNext(r, c);
+                        });
+                        input.addEventListener('keydown', (e) => {
+                            if (e.key === 'Tab') { e.preventDefault(); direction = direction === 'across' ? 'down' : 'across'; render(); }
+                            if (e.key === 'Backspace' && !userGrid[r][c]) { movePrev(r, c); }
+                        });
+                        cell.appendChild(input);
+                    }
+                    gridEl.appendChild(cell);
+                }
+            }
+            renderClues();
+            // Focus selected
+            if (selectedCell) {
+                let idx = selectedCell.r * 10 + selectedCell.c;
+                let cells = gridEl.querySelectorAll('.cw-cell.white input');
+                // Find the right input
+                let inputs = gridEl.querySelectorAll('input');
+                if (inputs[0]) {
+                    let targetInputs = Array.from(gridEl.children).filter((el, i) => {
+                        let row = Math.floor(i / 10), col = i % 10;
+                        return row === selectedCell.r && col === selectedCell.c;
+                    });
+                    if (targetInputs[0]) {
+                        let inp = targetInputs[0].querySelector('input');
+                        if (inp) inp.focus();
+                    }
+                }
+            }
+        }
+
+        function moveNext(r, c) {
+            if (direction === 'across') {
+                for (let nc = c + 1; nc < 10; nc++) {
+                    if (puzzle.grid[r][nc] !== 0) { selectedCell = { r, c: nc }; render(); return; }
+                }
+            } else {
+                for (let nr = r + 1; nr < 10; nr++) {
+                    if (puzzle.grid[nr][c] !== 0) { selectedCell = { r: nr, c }; render(); return; }
+                }
+            }
+        }
+
+        function movePrev(r, c) {
+            if (direction === 'across') {
+                for (let nc = c - 1; nc >= 0; nc--) {
+                    if (puzzle.grid[r][nc] !== 0) { selectedCell = { r, c: nc }; render(); return; }
+                }
+            } else {
+                for (let nr = r - 1; nr >= 0; nr--) {
+                    if (puzzle.grid[nr][c] !== 0) { selectedCell = { r: nr, c }; render(); return; }
+                }
+            }
+        }
+
+        function renderClues() {
+            const cluesEl = document.getElementById('clues');
+            cluesEl.innerHTML = '<h3>Across</h3>';
+            puzzle.cluesAcross.forEach(clue => {
+                let div = document.createElement('div');
+                div.className = 'clue';
+                div.textContent = clue.num + '. ' + clue.clue;
+                // Check if solved
+                let solved = true;
+                for (let i = 0; i < clue.answer.length; i++) {
+                    if (userGrid[clue.row][clue.col + i] !== clue.answer[i]) { solved = false; break; }
+                }
+                if (solved) div.classList.add('solved');
+                div.onclick = () => { selectedCell = { r: clue.row, c: clue.col }; direction = 'across'; render(); };
+                cluesEl.appendChild(div);
+            });
+            cluesEl.innerHTML += '<h3>Down</h3>';
+            puzzle.cluesDown.forEach(clue => {
+                let div = document.createElement('div');
+                div.className = 'clue';
+                div.textContent = clue.num + '. ' + clue.clue;
+                div.onclick = () => { selectedCell = { r: clue.row, c: clue.col }; direction = 'down'; render(); };
+                cluesEl.appendChild(div);
+            });
+        }
+
+        function checkAnswers() {
+            let allCorrect = true;
+            let gridEl = document.getElementById('grid');
+            let cells = gridEl.children;
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    let idx = r * 10 + c;
+                    if (puzzle.grid[r][c] !== 0) {
+                        if (userGrid[r][c] === puzzle.grid[r][c]) {
+                            cells[idx].classList.add('correct');
+                            cells[idx].classList.remove('wrong');
+                        } else if (userGrid[r][c]) {
+                            cells[idx].classList.add('wrong');
+                            cells[idx].classList.remove('correct');
+                            allCorrect = false;
+                        } else {
+                            allCorrect = false;
+                        }
+                    }
+                }
+            }
+            let msg = document.getElementById('message');
+            if (allCorrect) { msg.textContent = '🎉 Perfect! All answers correct!'; msg.style.color = '#00d4aa'; }
+            else { msg.textContent = 'Some answers need fixing. Keep trying!'; msg.style.color = '#ff6584'; }
+        }
+
+        function revealHint() {
+            // Reveal a random empty/wrong cell
+            let emptyCells = [];
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    if (puzzle.grid[r][c] !== 0 && userGrid[r][c] !== puzzle.grid[r][c]) {
+                        emptyCells.push({ r, c });
+                    }
+                }
+            }
+            if (emptyCells.length > 0) {
+                let cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                userGrid[cell.r][cell.c] = puzzle.grid[cell.r][cell.c];
+                render();
+            }
+        }
+
+        newGame();
+    </script>
+</body>
+</html>

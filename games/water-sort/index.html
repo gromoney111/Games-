@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Sort - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .info-bar { display: flex; gap: 2rem; margin: 1rem 0; font-size: 1rem; }
+        .info-bar span { color: #8888aa; }
+        .info-bar strong { color: #00d4aa; }
+        .bottles-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin: 1.5rem 0; max-width: 600px; }
+        .bottle { width: 50px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; }
+        .bottle:hover { transform: translateY(-5px); }
+        .bottle.selected { transform: translateY(-15px); }
+        .bottle-body { width: 44px; border: 3px solid #6c63ff; border-top: none; border-radius: 0 0 12px 12px; display: flex; flex-direction: column-reverse; overflow: hidden; min-height: 140px; background: rgba(108, 99, 255, 0.05); position: relative; }
+        .bottle-neck { width: 30px; height: 10px; border: 3px solid #6c63ff; border-bottom: none; border-radius: 4px 4px 0 0; margin: 0 auto; }
+        .water-layer { width: 100%; height: 32px; transition: all 0.3s; }
+        .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 0.6rem 1.5rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .btn.secondary { background: #1a1a3e; border: 2px solid #6c63ff; }
+        .message { margin-top: 1rem; font-size: 1.1rem; font-weight: 600; min-height: 1.5rem; }
+        .message.success { color: #00d4aa; }
+        .level-select { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .level-btn { padding: 0.4rem 0.8rem; background: #1a1a3e; border: 2px solid #6c63ff; border-radius: 15px; color: #e0e0ff; font-family: 'Poppins', sans-serif; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .level-btn:hover, .level-btn.active { background: #6c63ff; color: white; }
+        @media (max-width: 500px) { .bottle-body { width: 36px; min-height: 110px; } .water-layer { height: 25px; } .bottle { width: 42px; } .bottle-neck { width: 24px; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>💧 Water Sort</h1>
+    <div class="info-bar">
+        <div><span>Level: </span><strong id="level">1</strong></div>
+        <div><span>Moves: </span><strong id="moves">0</strong></div>
+    </div>
+    <div class="level-select" id="levels"></div>
+    <div class="bottles-container" id="bottles"></div>
+    <div class="actions">
+        <button class="btn secondary" onclick="undoMove()">↶ Undo</button>
+        <button class="btn secondary" onclick="loadLevel(currentLevel)">↺ Restart</button>
+        <button class="btn" onclick="nextLevel()">Next Level →</button>
+    </div>
+    <div class="message" id="message"></div>
+
+    <script>
+        const COLORS = ['#ff6584', '#6c63ff', '#00d4aa', '#ffb347', '#ff47b3', '#47b3ff', '#b347ff', '#ff8c47'];
+        const CAPACITY = 4;
+        let bottles = [], selectedBottle = null, moves = 0, currentLevel = 0, history = [];
+        const levels = generateLevels();
+
+        function generateLevels() {
+            let lvls = [];
+            // Level 1: 4 colors, 6 bottles
+            lvls.push({ colors: 4, extra: 2 });
+            // Level 2: 5 colors, 7 bottles
+            lvls.push({ colors: 5, extra: 2 });
+            // Level 3: 6 colors, 8 bottles
+            lvls.push({ colors: 6, extra: 2 });
+            // Level 4: 7 colors, 9 bottles
+            lvls.push({ colors: 7, extra: 2 });
+            // Level 5: 8 colors, 10 bottles
+            lvls.push({ colors: 8, extra: 2 });
+            return lvls;
+        }
+
+        function createLevel(lvl) {
+            let numColors = lvl.colors;
+            let layers = [];
+            for (let i = 0; i < numColors; i++) {
+                for (let j = 0; j < CAPACITY; j++) {
+                    layers.push(COLORS[i]);
+                }
+            }
+            // Shuffle
+            for (let i = layers.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [layers[i], layers[j]] = [layers[j], layers[i]];
+            }
+            // Distribute into bottles
+            let b = [];
+            for (let i = 0; i < numColors; i++) {
+                b.push(layers.slice(i * CAPACITY, (i + 1) * CAPACITY));
+            }
+            // Add empty bottles
+            for (let i = 0; i < lvl.extra; i++) b.push([]);
+            return b;
+        }
+
+        function loadLevel(idx) {
+            currentLevel = idx;
+            bottles = createLevel(levels[idx]);
+            selectedBottle = null;
+            moves = 0;
+            history = [];
+            document.getElementById('level').textContent = idx + 1;
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('message').textContent = '';
+            renderBottles();
+            renderLevelSelect();
+        }
+
+        function renderLevelSelect() {
+            const el = document.getElementById('levels');
+            el.innerHTML = '';
+            levels.forEach((_, i) => {
+                let btn = document.createElement('button');
+                btn.className = 'level-btn' + (i === currentLevel ? ' active' : '');
+                btn.textContent = 'Lv ' + (i + 1);
+                btn.onclick = () => loadLevel(i);
+                el.appendChild(btn);
+            });
+        }
+
+        function renderBottles() {
+            const container = document.getElementById('bottles');
+            container.innerHTML = '';
+            bottles.forEach((bottle, idx) => {
+                let bottleEl = document.createElement('div');
+                bottleEl.className = 'bottle' + (selectedBottle === idx ? ' selected' : '');
+                let neck = document.createElement('div');
+                neck.className = 'bottle-neck';
+                let body = document.createElement('div');
+                body.className = 'bottle-body';
+                bottle.forEach(color => {
+                    let layer = document.createElement('div');
+                    layer.className = 'water-layer';
+                    layer.style.background = color;
+                    body.appendChild(layer);
+                });
+                bottleEl.appendChild(neck);
+                bottleEl.appendChild(body);
+                bottleEl.onclick = () => clickBottle(idx);
+                container.appendChild(bottleEl);
+            });
+        }
+
+        function clickBottle(idx) {
+            if (selectedBottle === null) {
+                if (bottles[idx].length === 0) return;
+                selectedBottle = idx;
+                renderBottles();
+            } else {
+                if (idx === selectedBottle) {
+                    selectedBottle = null;
+                    renderBottles();
+                    return;
+                }
+                // Try to pour
+                if (canPour(selectedBottle, idx)) {
+                    pour(selectedBottle, idx);
+                    selectedBottle = null;
+                    moves++;
+                    document.getElementById('moves').textContent = moves;
+                    renderBottles();
+                    checkWin();
+                } else {
+                    selectedBottle = idx;
+                    renderBottles();
+                }
+            }
+        }
+
+        function canPour(from, to) {
+            if (bottles[from].length === 0) return false;
+            if (bottles[to].length >= CAPACITY) return false;
+            if (bottles[to].length === 0) return true;
+            return bottles[to][bottles[to].length - 1] === bottles[from][bottles[from].length - 1];
+        }
+
+        function pour(from, to) {
+            history.push({ from, to, count: 0, state: bottles.map(b => [...b]) });
+            let topColor = bottles[from][bottles[from].length - 1];
+            while (bottles[from].length > 0 && bottles[to].length < CAPACITY && bottles[from][bottles[from].length - 1] === topColor) {
+                bottles[to].push(bottles[from].pop());
+                history[history.length - 1].count++;
+            }
+        }
+
+        function undoMove() {
+            if (history.length === 0) return;
+            let last = history.pop();
+            bottles = last.state;
+            moves--;
+            document.getElementById('moves').textContent = moves;
+            selectedBottle = null;
+            renderBottles();
+        }
+
+        function checkWin() {
+            let won = bottles.every(b => b.length === 0 || (b.length === CAPACITY && b.every(c => c === b[0])));
+            if (won) {
+                document.getElementById('message').textContent = '🎉 Level Complete! Well done!';
+                document.getElementById('message').className = 'message success';
+            }
+        }
+
+        function nextLevel() {
+            let next = (currentLevel + 1) % levels.length;
+            loadLevel(next);
+        }
+
+        loadLevel(0);
+    </script>
+</body>
+</html>

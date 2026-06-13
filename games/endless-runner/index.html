@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endless Runner - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .score-board { display: flex; gap: 2rem; margin: 1rem 0; font-size: 1.1rem; }
+        .score-board span { color: #8888aa; }
+        .score-board strong { color: #00d4aa; }
+        canvas { border: 2px solid #6c63ff; border-radius: 8px; background: #05050f; display: block; max-width: 100%; touch-action: none; }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .controls { margin-top: 0.5rem; color: #8888aa; text-align: center; font-size: 0.9rem; }
+        .overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(10, 10, 26, 0.9); padding: 2rem; border-radius: 16px; border: 2px solid #6c63ff; }
+        .overlay h2 { color: #ff6584; margin-bottom: 1rem; }
+        .canvas-wrapper { position: relative; }
+        @media (max-width: 600px) { canvas { width: 100%; height: auto; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>🏃 Endless Runner</h1>
+    <div class="score-board">
+        <div><span>Distance: </span><strong id="score">0</strong><span>m</span></div>
+        <div><span>Best: </span><strong id="best">0</strong><span>m</span></div>
+    </div>
+    <div class="canvas-wrapper">
+        <canvas id="game" width="600" height="300"></canvas>
+    </div>
+    <div class="controls"><p>Press Space/Tap to jump (double jump available!)</p></div>
+    <button class="btn" id="start-btn" onclick="startGame()">Start Running</button>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        const GROUND = H - 50;
+        const GRAVITY = 0.6;
+        const JUMP_FORCE = -12;
+        let player, obstacles, score, best, speed, gameRunning, animFrame, particles;
+
+        best = parseInt(localStorage.getItem('runner-best') || '0');
+        document.getElementById('best').textContent = best;
+
+        function resetGame() {
+            player = { x: 80, y: GROUND - 40, w: 30, h: 40, vy: 0, jumps: 0, grounded: true };
+            obstacles = [];
+            particles = [];
+            score = 0;
+            speed = 5;
+            gameRunning = false;
+        }
+
+        function startGame() {
+            resetGame();
+            gameRunning = true;
+            document.getElementById('start-btn').style.display = 'none';
+            if (animFrame) cancelAnimationFrame(animFrame);
+            loop();
+        }
+
+        function jump() {
+            if (!gameRunning) { startGame(); return; }
+            if (player.jumps < 2) {
+                player.vy = JUMP_FORCE;
+                player.jumps++;
+                player.grounded = false;
+                // Jump particles
+                for (let i = 0; i < 5; i++) {
+                    particles.push({ x: player.x + 15, y: player.y + player.h, vx: (Math.random() - 0.5) * 3, vy: -Math.random() * 3, life: 20, color: '#6c63ff' });
+                }
+            }
+        }
+
+        function spawnObstacle() {
+            let types = [
+                { w: 20, h: 40 + Math.random() * 30 },
+                { w: 30, h: 25 },
+                { w: 15, h: 50 + Math.random() * 20 }
+            ];
+            let t = types[Math.floor(Math.random() * types.length)];
+            obstacles.push({ x: W + 50, y: GROUND - t.h, w: t.w, h: t.h });
+        }
+
+        function update() {
+            // Player physics
+            player.vy += GRAVITY;
+            player.y += player.vy;
+            if (player.y >= GROUND - player.h) {
+                player.y = GROUND - player.h;
+                player.vy = 0;
+                player.jumps = 0;
+                player.grounded = true;
+            }
+
+            // Score & speed
+            score++;
+            speed = 5 + Math.floor(score / 200) * 0.5;
+            document.getElementById('score').textContent = Math.floor(score / 5);
+
+            // Obstacles
+            if (Math.random() < 0.02 + score * 0.00001) spawnObstacle();
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= speed;
+                if (obstacles[i].x + obstacles[i].w < 0) { obstacles.splice(i, 1); continue; }
+                // Collision
+                if (player.x + player.w - 5 > obstacles[i].x && player.x + 5 < obstacles[i].x + obstacles[i].w &&
+                    player.y + player.h > obstacles[i].y && player.y < obstacles[i].y + obstacles[i].h) {
+                    endGame(); return;
+                }
+            }
+
+            // Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].x += particles[i].vx;
+                particles[i].y += particles[i].vy;
+                particles[i].life--;
+                if (particles[i].life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = '#05050f';
+            ctx.fillRect(0, 0, W, H);
+
+            // Stars/background dots
+            ctx.fillStyle = '#1a1a3e';
+            for (let i = 0; i < 30; i++) {
+                let sx = (i * 47 + score * 0.5) % W;
+                let sy = (i * 31) % (GROUND - 50) + 10;
+                ctx.fillRect(sx, sy, 2, 2);
+            }
+
+            // Ground
+            ctx.fillStyle = '#1a1a3e';
+            ctx.fillRect(0, GROUND, W, 50);
+            ctx.strokeStyle = '#6c63ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, GROUND);
+            ctx.lineTo(W, GROUND);
+            ctx.stroke();
+            // Ground lines
+            ctx.strokeStyle = '#2a2a5e';
+            for (let i = 0; i < W; i += 40) {
+                let x = (i - score * speed * 0.3) % W;
+                if (x < 0) x += W;
+                ctx.beginPath(); ctx.moveTo(x, GROUND + 10); ctx.lineTo(x + 20, GROUND + 10); ctx.stroke();
+            }
+
+            // Player (pixel art style)
+            let py = player.y;
+            // Body
+            ctx.fillStyle = '#6c63ff';
+            ctx.fillRect(player.x + 8, py + 10, 14, 18);
+            // Head
+            ctx.fillStyle = '#00d4aa';
+            ctx.fillRect(player.x + 8, py, 14, 12);
+            // Eyes
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(player.x + 16, py + 3, 4, 4);
+            // Legs (animate)
+            ctx.fillStyle = '#ff6584';
+            if (player.grounded) {
+                let leg = Math.floor(score / 5) % 2;
+                ctx.fillRect(player.x + 8, py + 28, 6, 12);
+                ctx.fillRect(player.x + 16, py + 28, 6, 12 - leg * 4);
+            } else {
+                ctx.fillRect(player.x + 8, py + 28, 6, 8);
+                ctx.fillRect(player.x + 16, py + 26, 6, 8);
+            }
+
+            // Obstacles
+            obstacles.forEach(obs => {
+                ctx.fillStyle = '#ff6584';
+                ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+                ctx.fillStyle = '#ff4570';
+                ctx.fillRect(obs.x + 3, obs.y + 3, obs.w - 6, obs.h - 6);
+                // Spikes on top
+                ctx.fillStyle = '#ffb347';
+                ctx.beginPath();
+                ctx.moveTo(obs.x, obs.y);
+                ctx.lineTo(obs.x + obs.w / 2, obs.y - 8);
+                ctx.lineTo(obs.x + obs.w, obs.y);
+                ctx.fill();
+            });
+
+            // Particles
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life / 20;
+                ctx.fillRect(p.x, p.y, 4, 4);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function loop() {
+            if (!gameRunning) return;
+            update();
+            draw();
+            animFrame = requestAnimationFrame(loop);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            let finalScore = Math.floor(score / 5);
+            if (finalScore > best) {
+                best = finalScore;
+                localStorage.setItem('runner-best', best);
+                document.getElementById('best').textContent = best;
+            }
+            // Draw game over
+            ctx.fillStyle = 'rgba(10, 10, 26, 0.8)';
+            ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = '#ff6584';
+            ctx.font = 'bold 36px Poppins';
+            ctx.textAlign = 'center';
+            ctx.fillText('Game Over!', W / 2, H / 2 - 20);
+            ctx.fillStyle = '#e0e0ff';
+            ctx.font = '18px Poppins';
+            ctx.fillText('Distance: ' + finalScore + 'm', W / 2, H / 2 + 20);
+            document.getElementById('start-btn').style.display = 'inline-block';
+            document.getElementById('start-btn').textContent = 'Play Again';
+        }
+
+        // Controls
+        document.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); } });
+        canvas.addEventListener('click', jump);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+
+        // Initial draw
+        resetGame();
+        draw();
+        ctx.fillStyle = 'rgba(10, 10, 26, 0.7)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#6c63ff';
+        ctx.font = 'bold 24px Poppins';
+        ctx.textAlign = 'center';
+        ctx.fillText('Tap or Press Space to Start', W / 2, H / 2);
+    </script>
+</body>
+</html>
