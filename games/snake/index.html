@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a1a;
+            color: #e0e0ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+        .back-link {
+            align-self: flex-start;
+            color: #6c63ff;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .score-board { display: flex; gap: 2rem; margin: 1rem 0; font-size: 1.1rem; }
+        .score-board span { color: #8888aa; }
+        .score-board strong { color: #00d4aa; }
+        canvas { border: 2px solid #6c63ff; border-radius: 8px; background: #05050f; display: block; max-width: 100%; touch-action: none; }
+        .controls { margin-top: 1rem; color: #8888aa; text-align: center; }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .game-over { display: none; text-align: center; margin-top: 1rem; }
+        .game-over h2 { color: #ff6584; font-size: 1.5rem; }
+        .mobile-controls { display: none; margin-top: 1rem; }
+        .mobile-controls button { width: 60px; height: 60px; font-size: 1.5rem; background: #1a1a3e; border: 2px solid #6c63ff; border-radius: 12px; color: white; cursor: pointer; }
+        .mobile-controls .row { display: flex; justify-content: center; gap: 5px; margin: 5px 0; }
+        @media (max-width: 600px) { .mobile-controls { display: block; } canvas { width: 100%; height: auto; } }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>🐍 Snake</h1>
+    <div class="score-board">
+        <div><span>Score: </span><strong id="score">0</strong></div>
+        <div><span>High Score: </span><strong id="highscore">0</strong></div>
+    </div>
+    <canvas id="game" width="400" height="400"></canvas>
+    <div class="game-over" id="gameover">
+        <h2>Game Over!</h2>
+        <p>Your score: <strong id="final-score">0</strong></p>
+        <button class="btn" onclick="startGame()">Play Again</button>
+    </div>
+    <div class="controls">
+        <p>Use Arrow Keys or WASD to move</p>
+    </div>
+    <div class="mobile-controls">
+        <div class="row"><button onclick="changeDir(0,-1)">▲</button></div>
+        <div class="row">
+            <button onclick="changeDir(-1,0)">◄</button>
+            <button onclick="changeDir(0,1)">▼</button>
+            <button onclick="changeDir(1,0)">►</button>
+        </div>
+    </div>
+    <button class="btn" onclick="startGame()" id="start-btn">Start Game</button>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const GRID = 20;
+        const CELLS = canvas.width / GRID;
+        let snake, food, dx, dy, score, highScore, gameLoop, speed, gameRunning;
+
+        highScore = parseInt(localStorage.getItem('snake-high') || '0');
+        document.getElementById('highscore').textContent = highScore;
+
+        function startGame() {
+            snake = [{x: 10, y: 10}];
+            placeFood();
+            dx = 1; dy = 0;
+            score = 0;
+            speed = 150;
+            gameRunning = true;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('gameover').style.display = 'none';
+            document.getElementById('start-btn').style.display = 'none';
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(update, speed);
+        }
+
+        function placeFood() {
+            food = {
+                x: Math.floor(Math.random() * CELLS),
+                y: Math.floor(Math.random() * CELLS)
+            };
+            for (let s of snake) {
+                if (s.x === food.x && s.y === food.y) { placeFood(); return; }
+            }
+        }
+
+        function update() {
+            if (!gameRunning) return;
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+            // Wall collision
+            if (head.x < 0 || head.x >= CELLS || head.y < 0 || head.y >= CELLS) { endGame(); return; }
+            // Self collision
+            for (let s of snake) { if (s.x === head.x && s.y === head.y) { endGame(); return; } }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                document.getElementById('score').textContent = score;
+                placeFood();
+                // Speed up
+                if (score % 5 === 0 && speed > 60) {
+                    speed -= 10;
+                    clearInterval(gameLoop);
+                    gameLoop = setInterval(update, speed);
+                }
+            } else {
+                snake.pop();
+            }
+            draw();
+        }
+
+        function draw() {
+            ctx.fillStyle = '#05050f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw food
+            ctx.fillStyle = '#ff6584';
+            ctx.beginPath();
+            ctx.arc(food.x * GRID + GRID/2, food.y * GRID + GRID/2, GRID/2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw snake
+            snake.forEach((seg, i) => {
+                ctx.fillStyle = i === 0 ? '#00d4aa' : '#6c63ff';
+                ctx.fillRect(seg.x * GRID + 1, seg.y * GRID + 1, GRID - 2, GRID - 2);
+                ctx.strokeStyle = '#0a0a1a';
+                ctx.strokeRect(seg.x * GRID + 1, seg.y * GRID + 1, GRID - 2, GRID - 2);
+            });
+        }
+
+        function endGame() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('snake-high', highScore);
+                document.getElementById('highscore').textContent = highScore;
+            }
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('gameover').style.display = 'block';
+        }
+
+        function changeDir(ndx, ndy) {
+            if (ndx === -dx && ndy === -dy) return; // prevent reverse
+            dx = ndx; dy = ndy;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': case 'w': case 'W': e.preventDefault(); changeDir(0, -1); break;
+                case 'ArrowDown': case 's': case 'S': e.preventDefault(); changeDir(0, 1); break;
+                case 'ArrowLeft': case 'a': case 'A': e.preventDefault(); changeDir(-1, 0); break;
+                case 'ArrowRight': case 'd': case 'D': e.preventDefault(); changeDir(1, 0); break;
+            }
+        });
+
+        // Touch swipe support
+        let touchStartX, touchStartY;
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        canvas.addEventListener('touchend', (e) => {
+            const diffX = e.changedTouches[0].clientX - touchStartX;
+            const diffY = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                changeDir(diffX > 0 ? 1 : -1, 0);
+            } else {
+                changeDir(0, diffY > 0 ? 1 : -1);
+            }
+        });
+
+        // Initial draw
+        draw();
+    </script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #ff47b3, #6c63ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .quiz-container { max-width: 600px; width: 100%; margin: 1rem auto; }
+        .progress { display: flex; justify-content: space-between; margin-bottom: 1rem; align-items: center; }
+        .progress span { color: #8888aa; }
+        .progress strong { color: #00d4aa; }
+        .progress-bar { width: 100%; height: 6px; background: #1a1a3e; border-radius: 3px; margin-top: 0.5rem; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #6c63ff, #00d4aa); border-radius: 3px; transition: width 0.3s; }
+        .timer { font-size: 1.5rem; font-weight: 700; color: #ff6584; }
+        .question-card { background: #12122a; padding: 2rem; border-radius: 16px; border: 1px solid rgba(108,99,255,0.2); margin: 1rem 0; }
+        .category { color: #6c63ff; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .question { font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem; line-height: 1.5; }
+        .options { display: flex; flex-direction: column; gap: 0.75rem; }
+        .option { padding: 1rem 1.5rem; background: #1a1a3e; border: 2px solid rgba(108,99,255,0.2); border-radius: 12px; cursor: pointer; transition: all 0.2s; font-size: 1rem; }
+        .option:hover { border-color: #6c63ff; background: #22224a; }
+        .option.correct { border-color: #00d4aa; background: rgba(0,212,170,0.1); }
+        .option.wrong { border-color: #ff4444; background: rgba(255,68,68,0.1); }
+        .option.disabled { pointer-events: none; opacity: 0.7; }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; display: none; }
+        .btn:hover { transform: scale(1.05); }
+        .result { display: none; text-align: center; }
+        .result h2 { font-size: 2rem; margin-bottom: 1rem; }
+        .result .score-display { font-size: 4rem; font-weight: 800; background: linear-gradient(135deg, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .result p { color: #8888aa; margin: 0.5rem 0; }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>🧠 Quiz Game</h1>
+    <div class="quiz-container">
+        <div class="progress" id="progress">
+            <span>Question <strong id="q-num">1</strong>/10</span>
+            <div class="timer" id="timer">15</div>
+            <span>Score: <strong id="score">0</strong></span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+        <div class="question-card" id="question-card">
+            <div class="category" id="category"></div>
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+        </div>
+        <button class="btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+
+        <div class="result" id="result">
+            <h2>Quiz Complete!</h2>
+            <div class="score-display" id="final-score">0/10</div>
+            <p id="result-msg">Great job!</p>
+            <button class="btn" style="display:inline-block" onclick="startQuiz()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { category: 'Science', q: 'What is the chemical symbol for gold?', options: ['Ag', 'Au', 'Fe', 'Cu'], answer: 1 },
+            { category: 'Geography', q: 'What is the largest ocean on Earth?', options: ['Atlantic', 'Indian', 'Pacific', 'Arctic'], answer: 2 },
+            { category: 'History', q: 'In what year did World War II end?', options: ['1943', '1944', '1945', '1946'], answer: 2 },
+            { category: 'Science', q: 'What planet is known as the Red Planet?', options: ['Venus', 'Mars', 'Jupiter', 'Saturn'], answer: 1 },
+            { category: 'Geography', q: 'What is the capital of Australia?', options: ['Sydney', 'Melbourne', 'Canberra', 'Perth'], answer: 2 },
+            { category: 'History', q: 'Who painted the Mona Lisa?', options: ['Michelangelo', 'Da Vinci', 'Raphael', 'Donatello'], answer: 1 },
+            { category: 'Science', q: 'What is the hardest natural substance?', options: ['Gold', 'Iron', 'Diamond', 'Titanium'], answer: 2 },
+            { category: 'Geography', q: 'Which country has the most population?', options: ['USA', 'India', 'China', 'Russia'], answer: 1 },
+            { category: 'Science', q: 'How many bones are in the adult human body?', options: ['186', '206', '226', '246'], answer: 1 },
+            { category: 'History', q: 'Which ancient wonder was in Alexandria?', options: ['Colossus', 'Lighthouse', 'Gardens', 'Temple'], answer: 1 }
+        ];
+
+        let currentQ, score, timer, timerInterval, shuffledQuestions;
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function startQuiz() {
+            shuffledQuestions = shuffle(questions);
+            currentQ = 0;
+            score = 0;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('question-card').style.display = 'block';
+            document.getElementById('progress').style.display = 'flex';
+            document.querySelector('.progress-bar').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = shuffledQuestions[currentQ];
+            document.getElementById('q-num').textContent = currentQ + 1;
+            document.getElementById('progress-fill').style.width = ((currentQ) / 10 * 100) + '%';
+            document.getElementById('category').textContent = q.category;
+            document.getElementById('question').textContent = q.q;
+            document.getElementById('next-btn').style.display = 'none';
+
+            const optionsEl = document.getElementById('options');
+            optionsEl.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = opt;
+                div.addEventListener('click', () => selectAnswer(i));
+                optionsEl.appendChild(div);
+            });
+
+            // Timer
+            let timeLeft = 15;
+            document.getElementById('timer').textContent = timeLeft;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    revealAnswer(-1);
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(idx) {
+            clearInterval(timerInterval);
+            revealAnswer(idx);
+        }
+
+        function revealAnswer(selected) {
+            const q = shuffledQuestions[currentQ];
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+                if (i === q.answer) opt.classList.add('correct');
+                if (i === selected && selected !== q.answer) opt.classList.add('wrong');
+            });
+
+            if (selected === q.answer) {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+
+            document.getElementById('next-btn').style.display = 'inline-block';
+            document.getElementById('next-btn').textContent = currentQ < 9 ? 'Next Question →' : 'See Results';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if (currentQ >= 10) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('question-card').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('progress').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('final-score').textContent = score + '/10';
+            
+            let msg = '';
+            if (score === 10) msg = 'Perfect! You\'re a genius! 🏆';
+            else if (score >= 7) msg = 'Great job! Very impressive! 🌟';
+            else if (score >= 5) msg = 'Not bad! Keep learning! 📚';
+            else msg = 'Keep trying! You\'ll get better! 💪';
+            document.getElementById('result-msg').textContent = msg;
+        }
+
+        startQuiz();
+    </script>
+</body>
+</html>

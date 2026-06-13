@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #ff6584, #6c63ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .status { font-size: 1.2rem; margin: 1rem 0; color: #00d4aa; min-height: 2rem; }
+        .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 320px; width: 100%; margin: 1rem auto; }
+        .cell { aspect-ratio: 1; background: #1a1a3e; border-radius: 12px; border: 2px solid rgba(108,99,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .cell:hover { border-color: #6c63ff; background: #22224a; }
+        .cell.x { color: #6c63ff; }
+        .cell.o { color: #ff6584; }
+        .cell.win { background: rgba(0,212,170,0.2); border-color: #00d4aa; }
+        .scores { display: flex; gap: 2rem; margin: 1rem 0; }
+        .scores div { text-align: center; background: #12122a; padding: 0.8rem 1.5rem; border-radius: 12px; }
+        .scores span { color: #8888aa; font-size: 0.8rem; display: block; }
+        .scores strong { font-size: 1.3rem; }
+        .scores .player { color: #6c63ff; }
+        .scores .ai { color: #ff6584; }
+        .scores .draw { color: #ffb347; }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; }
+        .btn:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>❌⭕ Tic Tac Toe</h1>
+    <div class="scores">
+        <div><span>You (X)</span><strong class="player" id="p-score">0</strong></div>
+        <div><span>Draws</span><strong class="draw" id="d-score">0</strong></div>
+        <div><span>AI (O)</span><strong class="ai" id="ai-score">0</strong></div>
+    </div>
+    <div class="status" id="status">Your turn! (X)</div>
+    <div class="board" id="board"></div>
+    <button class="btn" onclick="resetGame()">New Game</button>
+
+    <script>
+        let board, currentPlayer, gameOver, scores;
+        scores = { player: 0, ai: 0, draw: 0 };
+
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameOver = false;
+            document.getElementById('status').textContent = 'Your turn! (X)';
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            board.forEach((cell, i) => {
+                const div = document.createElement('div');
+                div.className = 'cell' + (cell === 'X' ? ' x' : cell === 'O' ? ' o' : '');
+                div.textContent = cell;
+                div.addEventListener('click', () => makeMove(i));
+                boardEl.appendChild(div);
+            });
+        }
+
+        function makeMove(i) {
+            if (gameOver || board[i] || currentPlayer !== 'X') return;
+            board[i] = 'X';
+            renderBoard();
+            if (checkWin('X')) { endGame('You win! 🎉'); return; }
+            if (board.every(c => c)) { endGame("It's a draw!"); return; }
+            currentPlayer = 'O';
+            document.getElementById('status').textContent = 'AI thinking...';
+            setTimeout(aiMove, 500);
+        }
+
+        function aiMove() {
+            if (gameOver) return;
+            const move = getBestMove();
+            board[move] = 'O';
+            renderBoard();
+            if (checkWin('O')) { endGame('AI wins! 🤖'); return; }
+            if (board.every(c => c)) { endGame("It's a draw!"); return; }
+            currentPlayer = 'X';
+            document.getElementById('status').textContent = 'Your turn! (X)';
+        }
+
+        function getBestMove() {
+            // Try to win
+            for (let i = 0; i < 9; i++) {
+                if (!board[i]) {
+                    board[i] = 'O';
+                    if (checkWin('O')) { board[i] = ''; return i; }
+                    board[i] = '';
+                }
+            }
+            // Block player
+            for (let i = 0; i < 9; i++) {
+                if (!board[i]) {
+                    board[i] = 'X';
+                    if (checkWin('X')) { board[i] = ''; return i; }
+                    board[i] = '';
+                }
+            }
+            // Take center
+            if (!board[4]) return 4;
+            // Take corner
+            const corners = [0, 2, 6, 8].filter(i => !board[i]);
+            if (corners.length) return corners[Math.floor(Math.random() * corners.length)];
+            // Take any
+            const available = board.map((c, i) => c ? -1 : i).filter(i => i !== -1);
+            return available[Math.floor(Math.random() * available.length)];
+        }
+
+        function checkWin(player) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(([a, b, c]) => board[a] === player && board[b] === player && board[c] === player);
+        }
+
+        function endGame(msg) {
+            gameOver = true;
+            document.getElementById('status').textContent = msg;
+            if (msg.includes('You win')) { scores.player++; document.getElementById('p-score').textContent = scores.player; }
+            else if (msg.includes('AI wins')) { scores.ai++; document.getElementById('ai-score').textContent = scores.ai; }
+            else { scores.draw++; document.getElementById('d-score').textContent = scores.draw; }
+
+            // Highlight winning cells
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            const cells = document.querySelectorAll('.cell');
+            for (let [a, b, c] of wins) {
+                if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+                    cells[a].classList.add('win');
+                    cells[b].classList.add('win');
+                    cells[c].classList.add('win');
+                }
+            }
+        }
+
+        resetGame();
+    </script>
+</body>
+</html>

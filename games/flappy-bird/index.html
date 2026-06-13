@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #ff6584, #ffb347); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .score-board { display: flex; gap: 2rem; margin: 1rem 0; }
+        .score-board span { color: #8888aa; }
+        .score-board strong { color: #00d4aa; }
+        canvas { border: 2px solid #6c63ff; border-radius: 8px; background: #1a1a2e; cursor: pointer; display: block; max-width: 100%; touch-action: none; }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; }
+        .btn:hover { transform: scale(1.05); }
+        .controls { margin-top: 1rem; color: #8888aa; text-align: center; }
+        .overlay { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>🐦 Flappy Bird</h1>
+    <div class="score-board">
+        <div><span>Score: </span><strong id="score">0</strong></div>
+        <div><span>Best: </span><strong id="best">0</strong></div>
+    </div>
+    <canvas id="game" width="400" height="600"></canvas>
+    <div class="controls"><p>Click, Tap, or press Space to flap</p></div>
+    <button class="btn" id="start-btn" onclick="startGame()">Start Game</button>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+
+        let bird, pipes, score, best, gameRunning, gameStarted, frameId;
+        const GRAVITY = 0.5;
+        const FLAP = -8;
+        const PIPE_WIDTH = 60;
+        const GAP = 150;
+        const PIPE_SPEED = 3;
+
+        best = parseInt(localStorage.getItem('flappy-best') || '0');
+        document.getElementById('best').textContent = best;
+
+        function init() {
+            bird = { x: 80, y: H / 2, vy: 0, size: 20 };
+            pipes = [];
+            score = 0;
+            gameRunning = false;
+            gameStarted = false;
+            document.getElementById('score').textContent = '0';
+            draw();
+        }
+
+        function startGame() {
+            bird = { x: 80, y: H / 2, vy: 0, size: 20 };
+            pipes = [];
+            score = 0;
+            gameRunning = true;
+            gameStarted = true;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('start-btn').style.display = 'none';
+            if (frameId) cancelAnimationFrame(frameId);
+            addPipe();
+            loop();
+        }
+
+        function addPipe() {
+            const minY = 80;
+            const maxY = H - GAP - 80;
+            const topH = Math.random() * (maxY - minY) + minY;
+            pipes.push({ x: W, topH: topH, scored: false });
+        }
+
+        function flap() {
+            if (!gameRunning) { if (!gameStarted) startGame(); return; }
+            bird.vy = FLAP;
+        }
+
+        function loop() {
+            if (!gameRunning) return;
+            update();
+            draw();
+            frameId = requestAnimationFrame(loop);
+        }
+
+        function update() {
+            // Bird physics
+            bird.vy += GRAVITY;
+            bird.y += bird.vy;
+
+            // Ceiling/floor
+            if (bird.y - bird.size < 0) { bird.y = bird.size; bird.vy = 0; }
+            if (bird.y + bird.size > H) { endGame(); return; }
+
+            // Pipes
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                pipes[i].x -= PIPE_SPEED;
+
+                // Collision
+                if (bird.x + bird.size > pipes[i].x && bird.x - bird.size < pipes[i].x + PIPE_WIDTH) {
+                    if (bird.y - bird.size < pipes[i].topH || bird.y + bird.size > pipes[i].topH + GAP) {
+                        endGame(); return;
+                    }
+                }
+
+                // Score
+                if (!pipes[i].scored && pipes[i].x + PIPE_WIDTH < bird.x) {
+                    pipes[i].scored = true;
+                    score++;
+                    document.getElementById('score').textContent = score;
+                }
+
+                // Remove off-screen
+                if (pipes[i].x + PIPE_WIDTH < 0) pipes.splice(i, 1);
+            }
+
+            // Add new pipes
+            if (pipes.length === 0 || pipes[pipes.length - 1].x < W - 200) {
+                addPipe();
+            }
+        }
+
+        function draw() {
+            // Background gradient
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, '#1a1a3e');
+            grad.addColorStop(1, '#0a0a1a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Pipes
+            ctx.fillStyle = '#00d4aa';
+            for (let p of pipes) {
+                // Top pipe
+                ctx.fillRect(p.x, 0, PIPE_WIDTH, p.topH);
+                ctx.fillStyle = '#008866';
+                ctx.fillRect(p.x - 3, p.topH - 20, PIPE_WIDTH + 6, 20);
+                ctx.fillStyle = '#00d4aa';
+                // Bottom pipe
+                ctx.fillRect(p.x, p.topH + GAP, PIPE_WIDTH, H - p.topH - GAP);
+                ctx.fillStyle = '#008866';
+                ctx.fillRect(p.x - 3, p.topH + GAP, PIPE_WIDTH + 6, 20);
+                ctx.fillStyle = '#00d4aa';
+            }
+
+            // Bird
+            ctx.fillStyle = '#ffdd00';
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.size, 0, Math.PI * 2);
+            ctx.fill();
+            // Eye
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(bird.x + 7, bird.y - 5, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(bird.x + 8, bird.y - 6, 2, 0, Math.PI * 2);
+            ctx.fill();
+            // Beak
+            ctx.fillStyle = '#ff6600';
+            ctx.beginPath();
+            ctx.moveTo(bird.x + 15, bird.y);
+            ctx.lineTo(bird.x + 25, bird.y + 3);
+            ctx.lineTo(bird.x + 15, bird.y + 6);
+            ctx.fill();
+
+            if (!gameStarted) {
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.font = '20px Poppins';
+                ctx.textAlign = 'center';
+                ctx.fillText('Click or press Space to start', W/2, H/2 + 60);
+            }
+        }
+
+        function endGame() {
+            gameRunning = false;
+            cancelAnimationFrame(frameId);
+            if (score > best) {
+                best = score;
+                localStorage.setItem('flappy-best', best);
+                document.getElementById('best').textContent = best;
+            }
+            document.getElementById('start-btn').style.display = '';
+            document.getElementById('start-btn').textContent = 'Play Again';
+        }
+
+        document.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); flap(); } });
+        canvas.addEventListener('click', flap);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); flap(); });
+
+        init();
+    </script>
+</body>
+</html>

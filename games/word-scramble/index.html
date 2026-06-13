@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Scramble - GameZone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        .back-link { align-self: flex-start; color: #6c63ff; text-decoration: none; font-weight: 600; margin-bottom: 1rem; }
+        .back-link:hover { color: #ff6584; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #00d4aa, #ffb347); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stats { display: flex; gap: 2rem; margin: 1rem 0; flex-wrap: wrap; justify-content: center; }
+        .stats div { text-align: center; background: #12122a; padding: 0.5rem 1rem; border-radius: 10px; }
+        .stats span { color: #8888aa; font-size: 0.8rem; display: block; }
+        .stats strong { color: #00d4aa; font-size: 1.2rem; }
+        .game-area { max-width: 500px; width: 100%; margin: 1rem auto; text-align: center; }
+        .scrambled { font-size: 2.5rem; font-weight: 800; letter-spacing: 8px; color: #6c63ff; background: #12122a; padding: 1.5rem; border-radius: 16px; border: 2px solid rgba(108,99,255,0.3); margin: 1.5rem 0; text-transform: uppercase; }
+        .hint { color: #ffb347; font-size: 1rem; margin: 0.5rem 0; min-height: 1.5rem; }
+        .input-area { display: flex; gap: 0.5rem; margin: 1.5rem 0; justify-content: center; }
+        .input-area input { padding: 0.8rem 1.5rem; font-size: 1.2rem; font-family: 'Poppins', sans-serif; background: #1a1a3e; border: 2px solid rgba(108,99,255,0.3); border-radius: 12px; color: #e0e0ff; outline: none; text-transform: uppercase; letter-spacing: 3px; width: 100%; max-width: 300px; text-align: center; }
+        .input-area input:focus { border-color: #6c63ff; }
+        .btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #6c63ff, #ff6584); color: white; border: none; border-radius: 25px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .btn-hint { background: linear-gradient(135deg, #ffb347, #ff6584); padding: 0.6rem 1.5rem; font-size: 0.9rem; }
+        .btn-group { display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+        .feedback { font-size: 1.2rem; margin: 1rem 0; min-height: 2rem; font-weight: 600; }
+        .feedback.correct { color: #00d4aa; }
+        .feedback.wrong { color: #ff6584; }
+        .streak-display { color: #ffb347; }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Games</a>
+    <h1>📝 Word Scramble</h1>
+    <div class="stats">
+        <div><span>Score</span><strong id="score">0</strong></div>
+        <div><span>Streak</span><strong id="streak" class="streak-display">0🔥</strong></div>
+        <div><span>Words</span><strong id="words">0/10</strong></div>
+    </div>
+    <div class="game-area">
+        <div class="scrambled" id="scrambled">READY?</div>
+        <div class="hint" id="hint"></div>
+        <div class="input-area">
+            <input type="text" id="answer" placeholder="Type your answer" autocomplete="off" autofocus>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="btn-group">
+            <button class="btn" onclick="checkAnswer()">Submit</button>
+            <button class="btn btn-hint" onclick="getHint()">💡 Hint</button>
+            <button class="btn" onclick="skipWord()" style="background: linear-gradient(135deg, #8888aa, #555);">Skip</button>
+        </div>
+    </div>
+    <div id="game-over" style="display:none; text-align:center; margin-top:2rem;">
+        <h2 style="color:#00d4aa; font-size:1.8rem;">Game Complete!</h2>
+        <p style="color:#8888aa; font-size:1.1rem; margin:0.5rem 0;">Final Score: <strong id="final-score" style="color:#00d4aa;">0</strong></p>
+        <p style="color:#8888aa;">Best Streak: <strong id="final-streak" style="color:#ffb347;">0</strong></p>
+        <button class="btn" onclick="startGame()" style="margin-top:1rem;">Play Again</button>
+    </div>
+
+    <script>
+        const wordList = [
+            { word: 'GALAXY', hint: 'A system of stars' },
+            { word: 'PUZZLE', hint: 'A game that tests ingenuity' },
+            { word: 'RHYTHM', hint: 'A pattern of beats in music' },
+            { word: 'WIZARD', hint: 'A magical person' },
+            { word: 'JUNGLE', hint: 'A dense tropical forest' },
+            { word: 'CASTLE', hint: 'A medieval fortress' },
+            { word: 'DRAGON', hint: 'A mythical fire-breathing creature' },
+            { word: 'PLANET', hint: 'A celestial body orbiting a star' },
+            { word: 'KNIGHT', hint: 'A medieval warrior' },
+            { word: 'FROZEN', hint: 'Turned to ice' },
+            { word: 'PIRATE', hint: 'A seafaring criminal' },
+            { word: 'SHADOW', hint: 'A dark area created by blocking light' },
+            { word: 'TROPHY', hint: 'An award for winning' },
+            { word: 'ZENITH', hint: 'The highest point' },
+            { word: 'BREEZE', hint: 'A gentle wind' },
+            { word: 'CIPHER', hint: 'A secret code' },
+            { word: 'METEOR', hint: 'A space rock burning in atmosphere' },
+            { word: 'RECIPE', hint: 'Instructions for cooking' },
+            { word: 'VOYAGE', hint: 'A long journey' },
+            { word: 'QUARTZ', hint: 'A common mineral' }
+        ];
+
+        let currentWord, scrambled, score, streak, bestStreak, wordCount, hints, gameWords;
+
+        function scrambleWord(word) {
+            let arr = word.split('');
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            const result = arr.join('');
+            // Make sure it's actually scrambled
+            if (result === word && word.length > 1) return scrambleWord(word);
+            return result;
+        }
+
+        function startGame() {
+            score = 0; streak = 0; bestStreak = 0; wordCount = 0; hints = 0;
+            // Pick 10 random words
+            const shuffled = [...wordList].sort(() => Math.random() - 0.5);
+            gameWords = shuffled.slice(0, 10);
+            document.getElementById('score').textContent = '0';
+            document.getElementById('streak').textContent = '0🔥';
+            document.getElementById('words').textContent = '0/10';
+            document.getElementById('game-over').style.display = 'none';
+            document.querySelector('.game-area').style.display = 'block';
+            nextWord();
+        }
+
+        function nextWord() {
+            if (wordCount >= 10) { endGame(); return; }
+            currentWord = gameWords[wordCount];
+            scrambled = scrambleWord(currentWord.word);
+            document.getElementById('scrambled').textContent = scrambled;
+            document.getElementById('hint').textContent = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('answer').value = '';
+            document.getElementById('answer').focus();
+            hints = 0;
+        }
+
+        function checkAnswer() {
+            const input = document.getElementById('answer').value.trim().toUpperCase();
+            if (!input) return;
+
+            if (input === currentWord.word) {
+                // Correct!
+                const points = Math.max(10 - hints * 3, 5);
+                score += points;
+                streak++;
+                if (streak > bestStreak) bestStreak = streak;
+                wordCount++;
+                document.getElementById('feedback').textContent = '✓ Correct! +' + points + ' points';
+                document.getElementById('feedback').className = 'feedback correct';
+                updateStats();
+                setTimeout(nextWord, 1200);
+            } else {
+                // Wrong
+                streak = 0;
+                document.getElementById('feedback').textContent = '✗ Try again!';
+                document.getElementById('feedback').className = 'feedback wrong';
+                document.getElementById('streak').textContent = streak + '🔥';
+                document.getElementById('answer').value = '';
+                document.getElementById('answer').focus();
+            }
+        }
+
+        function getHint() {
+            hints++;
+            const word = currentWord.word;
+            if (hints === 1) {
+                document.getElementById('hint').textContent = '💡 ' + currentWord.hint;
+            } else if (hints === 2) {
+                document.getElementById('hint').textContent = '💡 Starts with "' + word[0] + '" and ends with "' + word[word.length-1] + '"';
+            } else {
+                // Reveal more letters
+                let revealed = word[0];
+                for (let i = 1; i < word.length - 1; i++) {
+                    revealed += (Math.random() > 0.5) ? word[i] : '_';
+                }
+                revealed += word[word.length - 1];
+                document.getElementById('hint').textContent = '💡 ' + revealed;
+            }
+        }
+
+        function skipWord() {
+            streak = 0;
+            wordCount++;
+            document.getElementById('feedback').textContent = 'Skipped! The word was: ' + currentWord.word;
+            document.getElementById('feedback').className = 'feedback wrong';
+            document.getElementById('streak').textContent = streak + '🔥';
+            updateStats();
+            setTimeout(nextWord, 1500);
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak + '🔥';
+            document.getElementById('words').textContent = wordCount + '/10';
+        }
+
+        function endGame() {
+            document.querySelector('.game-area').style.display = 'none';
+            document.getElementById('game-over').style.display = 'block';
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-streak').textContent = bestStreak;
+        }
+
+        // Enter key to submit
+        document.getElementById('answer').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') checkAnswer();
+        });
+
+        startGame();
+    </script>
+</body>
+</html>
