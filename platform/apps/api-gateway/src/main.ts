@@ -5,17 +5,34 @@
  * all client requests to backend microservices.
  */
 
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
+
 const PORT = process.env.PORT || 3000;
 
 async function bootstrap(): Promise<void> {
-  // TODO: Initialize NestJS application
-  // TODO: Configure JWT RS256 validation middleware
-  // TODO: Configure CORS with strict origin whitelist
-  // TODO: Configure rate limiting middleware
-  // TODO: Set up route forwarding to microservices
-  // TODO: Implement health check endpoints
+  const app = await NestFactory.create(AppModule);
 
-  console.log(`API Gateway starting on port ${PORT}`);
+  // Global validation pipe for DTO validation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // CORS with strict origin whitelist
+  app.enableCors({
+    origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3001'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
+
+  await app.listen(PORT);
+  console.log(`API Gateway running on port ${PORT}`);
 }
 
 bootstrap().catch((error) => {
