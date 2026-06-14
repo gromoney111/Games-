@@ -1,18 +1,30 @@
 /**
  * Auth Service
  *
- * Handles user registration including:
- * - Email/username uniqueness checking
- * - Password hashing with Argon2id
- * - User creation with PENDING status
- * - Email verification token generation
- * - Notification queueing for verification email
+ * Handles user authentication including:
+ * - Registration with email/username uniqueness checking
+ * - Login with constant-time responses (dummy hash on miss)
+ * - RS256 JWT access token (15-min expiry) and refresh token (7-day expiry)
+ * - Account lockout after 5 failed attempts in 15 minutes (30-min lock)
+ * - Failed attempts reset on successful login
+ * - Last login timestamp update
+ * - Refresh token storage in Redis for rotation/revocation
  *
- * Security: Returns generic error on duplicate email/username to prevent account enumeration.
+ * Security:
+ * - Returns generic error on duplicate email/username to prevent account enumeration
+ * - Constant-time response regardless of user existence
+ * - Account lockout for brute-force protection
  */
 
-import { Injectable, ConflictException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import { CryptoService } from './crypto.service';
+import { JwtService, TokenPairResult } from './jwt.service';
+import { RedisService } from './redis.service';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 
@@ -30,10 +42,19 @@ export interface EmailVerificationToken {
   expiresAt: Date;
 }
 
-export interface TokenPair {
+export interface LoginResult {
   accessToken: string;
   refreshToken: string;
+  expiresIn: number;
+  user: {
+    id: string;
+    email: string;
+    role: string;
+  };
 }
+
+/** Maximum failed login attempts before account lockout */
+const MAX_FAILED_ATTEMPTS = 5;
 
 @Injectable()
 export class AuthService {
@@ -41,6 +62,8 @@ export class AuthService {
 
   constructor(
     private readonly cryptoService: CryptoService,
+    private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
     private readonly usersService: UsersService,
   ) {}
 
@@ -66,13 +89,17 @@ export class AuthService {
     const emailExists = await this.usersService.emailExists(dto.email);
     if (emailExists) {
       this.logger.warn(`Registration attempt with existing email: ${dto.email.substring(0, 3)}***`);
-      throw new ConflictException('Registration could not be completed. Please try again or contact support.');
+      throw new ConflictException(
+        'Registration could not be completed. Please try again or contact support.',
+      );
     }
 
     // Check if username already exists - same generic error
     const usernameExists = await this.usersService.usernameExists(dto.username);
     if (usernameExists) {
-      throw new ConflictException('Registration could not be completed. Please try again or contact support.');
+      throw new ConflictException(
+        'Registration could not be completed. Please try again or contact support.',
+      );
     }
 
     // Hash password with Argon2id (per-user salt, 3 iterations, 64MB memory, 4 parallelism)
@@ -110,34 +137,190 @@ export class AuthService {
   }
 
   /**
-   * Authenticate user credentials and return token pair.
-   * Placeholder - full implementation in Task 3.2
+   * Authenticate user credentials and issue token pair.
+   *
+   * Security requirements fulfilled:
+   * - Constant-time response regardless of user existence (dummy hash on miss)
+   * - Account lockout after 5 failed attempts in 15 minutes
+   * - 30-minute lock duration
+   * - Reset failed attempts on success
+   * - Update lastLoginAt timestamp on success
+   * - RS256 JWT access token (15-min) + refresh token (7-day)
+   * - Store refresh token in Redis for rotation/revocation
+   *
+   * @param email - User email address
+   * @param password - User plaintext password
+   * @returns LoginResult with tokens and user info
+   * @throws UnauthorizedException with generic message
    */
-  async login(_email: string, _password: string): Promise<TokenPair | null> {
-    this.logger.log('Login attempt - implementation pending (Task 3.2)');
-    return null;
+  async login(email: string, password: string): Promise<LoginResult> {
+    // 1. Find user by email
+    const user = await this.usersService.findByEmail(email);
+
+    // 2. If user not found, perform dummy hash (constant-time) and return generic error
+    if (!user) {
+      await this.cryptoService.dummyHashComputation();
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // 3. Check if account is locked
+    const isLocked = await this.redisService.isAccountLocked(user.id);
+    if (isLocked) {
+      throw new UnauthorizedException(
+        'Account temporarily locked. Try again later.',
+      );
+    }
+
+    // 4. Check account status
+    if (user.status === 'SUSPENDED') {
+      throw new UnauthorizedException('Account suspended');
+    }
+    if (user.status !== 'ACTIVE' && user.status !== 'PENDING') {
+      throw new UnauthorizedException('Account inactive');
+    }
+
+    // 5. Verify password using Argon2id with constant-time comparison
+    const passwordValid = await this.cryptoService.verifyPassword(
+      password,
+      user.passwordHash,
+    );
+
+    if (!passwordValid) {
+      // Increment failed attempts in Redis (15-min TTL)
+      const attempts = await this.redisService.incrementFailedAttempts(user.id);
+
+      this.logger.warn(
+        `Failed login attempt ${attempts}/${MAX_FAILED_ATTEMPTS} for user ${user.id}`,
+      );
+
+      if (attempts >= MAX_FAILED_ATTEMPTS) {
+        // Lock account for 30 minutes
+        await this.redisService.lockAccount(user.id);
+        throw new UnauthorizedException(
+          'Account temporarily locked due to too many failed attempts',
+        );
+      }
+
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // 6. Success - reset failed attempts counter
+    await this.redisService.resetFailedAttempts(user.id);
+
+    // 7. Update last login timestamp
+    await this.usersService.updateLastLogin(user.id);
+
+    // 8. Generate RS256 JWT token pair
+    const tokenPair: TokenPairResult = this.jwtService.generateTokenPair({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    // 9. Store refresh token in Redis (for rotation/revocation)
+    await this.redisService.storeRefreshToken(
+      user.id,
+      tokenPair.refreshTokenId,
+      tokenPair.refreshToken,
+    );
+
+    // 10. Log successful login event
+    this.logger.log(`User authenticated successfully: ${user.id}`);
+
+    return {
+      accessToken: tokenPair.accessToken,
+      refreshToken: tokenPair.refreshToken,
+      expiresIn: tokenPair.expiresIn,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+    };
   }
 
   /**
    * Refresh access token using a valid refresh token.
-   * Placeholder - full implementation in Task 3.5
+   *
+   * Token Rotation Flow:
+   * 1. Verify the refresh token signature and expiration (HS256)
+   * 2. Check if token exists in Redis (not revoked/rotated)
+   * 3. If token doesn't match stored token → possible reuse attack → revoke all
+   * 4. Verify user is still active
+   * 5. Generate new token pair (new access + new refresh)
+   * 6. Store new refresh token, invalidating old one (rotation)
+   *
+   * @param refreshToken - The refresh token to validate
+   * @returns LoginResult with fresh access token, refresh token, and user info
+   * @throws UnauthorizedException if token is invalid, revoked, or user inactive
    */
-  async refresh(_refreshToken: string): Promise<TokenPair | null> {
-    this.logger.log('Token refresh attempt - implementation pending (Task 3.5)');
-    return null;
+  async refresh(refreshToken: string): Promise<LoginResult> {
+    // 1. Verify the refresh token signature and expiration
+    const payload = this.jwtService.verifyRefreshToken(refreshToken);
+    if (!payload) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    // 2. Check if token exists in Redis (not revoked/rotated)
+    const storedToken = await this.redisService.getRefreshToken(payload.sub, payload.tokenId);
+    if (!storedToken || storedToken !== refreshToken) {
+      // Possible token reuse attack - invalidate all tokens for this user
+      this.logger.warn(`Token reuse detected for user: ${payload.sub}`);
+      await this.redisService.revokeAllRefreshTokens(payload.sub);
+      throw new UnauthorizedException('Token has been revoked');
+    }
+
+    // 3. Get fresh user data and verify account is still active
+    const user = await this.usersService.findById(payload.sub);
+    if (!user || user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('User account not active');
+    }
+
+    // 4. Revoke old refresh token (rotation - old token invalidated immediately)
+    await this.redisService.revokeRefreshToken(payload.sub, payload.tokenId);
+
+    // 5. Generate new token pair
+    const tokenPair: TokenPairResult = this.jwtService.generateTokenPair({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    // 6. Store new refresh token in Redis
+    await this.redisService.storeRefreshToken(
+      user.id,
+      tokenPair.refreshTokenId,
+      tokenPair.refreshToken,
+    );
+
+    this.logger.log(`Token refreshed successfully for user: ${user.id}`);
+
+    return {
+      accessToken: tokenPair.accessToken,
+      refreshToken: tokenPair.refreshToken,
+      expiresIn: tokenPair.expiresIn,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+    };
   }
 
   /**
    * Logout user and invalidate all tokens.
    */
   async logout(userId: string): Promise<void> {
+    await this.redisService.revokeAllRefreshTokens(userId);
     this.logger.log(`Logout for user: ${userId}`);
   }
 
   /**
    * Generate an email verification token with 24-hour expiry.
    */
-  private generateEmailVerificationToken(userId: string): EmailVerificationToken {
+  private generateEmailVerificationToken(
+    userId: string,
+  ): EmailVerificationToken {
     const token = this.cryptoService.generateToken();
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
@@ -153,7 +336,10 @@ export class AuthService {
    * Queue a verification email for async sending via notification service.
    * This is non-blocking — failures are logged but don't affect registration.
    */
-  private queueVerificationEmail(email: string, verificationToken: EmailVerificationToken): void {
+  private queueVerificationEmail(
+    email: string,
+    verificationToken: EmailVerificationToken,
+  ): void {
     // TODO: Integrate with message queue (RabbitMQ/SQS) when notification service is ready
     this.logger.log(
       `Verification email queued for user ${verificationToken.userId}, token expires at ${verificationToken.expiresAt.toISOString()}`,

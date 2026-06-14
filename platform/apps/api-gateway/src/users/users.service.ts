@@ -67,4 +67,12 @@ export class UsersService {
   async usernameExists(username: string): Promise<boolean> {
     return this.usersRepository.usernameExists(username);
   }
+
+  /**
+   * Update the last login timestamp for a user.
+   * Called on successful authentication.
+   */
+  async updateLastLogin(userId: string): Promise<void> {
+    return this.usersRepository.updateLastLogin(userId);
+  }
 }

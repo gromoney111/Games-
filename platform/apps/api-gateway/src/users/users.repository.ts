@@ -104,4 +104,14 @@ export class UsersRepository {
     });
     return count > 0;
   }
+
+  /**
+   * Update the last login timestamp for a user.
+   */
+  async updateLastLogin(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { lastLoginAt: new Date() },
+    });
+  }
 }
