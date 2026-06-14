@@ -1,0 +1,384 @@
+// ============================================================================
+// Gaming Platform - Prisma Schema
+// PostgreSQL database schema for the full gaming platform
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// Enums
+// ============================================================================
+
+enum UserRole {
+  PLAYER
+  ADMIN
+  AFFILIATE
+  MODERATOR
+}
+
+enum AccountStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum GameCategory {
+  PUZZLE
+  ACTION
+  STRATEGY
+  CASUAL
+  MULTIPLAYER
+  EDUCATIONAL
+}
+
+enum GameStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+  ARCHIVED
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  DISPUTED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  GOOGLE_PAY
+  APPLE_PAY
+  CRYPTO
+}
+
+enum AffiliateStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum AffiliateTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
+enum NotificationType {
+  PURCHASE_CONFIRMATION
+  COMMISSION_EARNED
+  SECURITY_ALERT
+  ACCOUNT_UPDATE
+  GAME_UPDATE
+  SYSTEM_ANNOUNCEMENT
+}
+
+// ============================================================================
+// User Models
+// ============================================================================
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  username      String        @unique
+  passwordHash  String
+  role          UserRole      @default(PLAYER)
+  status        AccountStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  lastLoginAt   DateTime?
+
+  // Relations
+  profile       UserProfile?
+  gameSessions  GameSession[]
+  gameResults   GameResult[]
+  transactions  Transaction[]
+  affiliate     Affiliate?
+  adImpressions AdImpression[]
+  analyticsEvents AnalyticsEvent[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  consentRecords ConsentRecord[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id                String  @id @default(uuid())
+  userId            String  @unique
+  displayName       String?
+  avatarUrl         String?
+  bio               String?
+  country           String?
+  preferredLanguage String  @default("en")
+  notificationPrefs Json    @default("{}")
+  privacySettings   Json    @default("{}")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+// ============================================================================
+// Game Models
+// ============================================================================
+
+model Game {
+  id                 String       @id @default(uuid())
+  slug               String       @unique
+  title              String
+  description        String
+  category           GameCategory
+  tags               String[]
+  thumbnailUrl       String?
+  config             Json         @default("{}")
+  status             GameStatus   @default(DRAFT)
+  seoMetadata        Json         @default("{}")
+  monetizationConfig Json         @default("{}")
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  // Relations
+  gameSessions GameSession[]
+  gameResults  GameResult[]
+
+  @@map("games")
+}
+
+model GameSession {
+  id             String    @id @default(uuid())
+  userId         String
+  gameId         String
+  state          Json      @default("{}")
+  score          Int       @default(0)
+  startedAt      DateTime  @default(now())
+  lastActivityAt DateTime  @default(now())
+  endedAt        DateTime?
+  duration       Int       @default(0)
+  actions        Json[]    @default([])
+  createdAt      DateTime  @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@index([userId, gameId, createdAt])
+  @@map("game_sessions")
+}
+
+model GameResult {
+  id          String   @id @default(uuid())
+  userId      String
+  gameId      String
+  score       Int
+  duration    Int
+  completedAt DateTime @default(now())
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@index([userId, gameId, createdAt])
+  @@map("game_results")
+}
+
+// ============================================================================
+// Transaction Models
+// ============================================================================
+
+model Transaction {
+  id               String            @id @default(uuid())
+  userId           String
+  itemId           String?
+  amount           Int
+  currency         String            @default("USD")
+  status           TransactionStatus @default(PENDING)
+  paymentMethod    PaymentMethod?
+  gatewayReference String?
+  metadata         Json              @default("{}")
+  createdAt        DateTime          @default(now())
+  completedAt      DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("transactions")
+}
+
+// ============================================================================
+// Affiliate Models
+// ============================================================================
+
+model Affiliate {
+  id             String          @id @default(uuid())
+  userId         String          @unique
+  status         AffiliateStatus @default(PENDING)
+  tier           AffiliateTier   @default(BRONZE)
+  commissionRate Float           @default(0.05)
+  trackingCode   String          @unique
+  payoutInfo     Json            @default("{}")
+  createdAt      DateTime        @default(now())
+
+  // Relations
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clicks      AffiliateClick[]
+  commissions Commission[]
+
+  @@map("affiliates")
+}
+
+model AffiliateClick {
+  id          String   @id @default(uuid())
+  affiliateId String
+  ip          String?
+  userAgent   String?
+  referrerUrl String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId, createdAt])
+  @@map("affiliate_clicks")
+}
+
+model Commission {
+  id                String           @id @default(uuid())
+  affiliateId       String
+  conversionEventId String?
+  amount            Int
+  currency          String           @default("USD")
+  rate              Float
+  status            CommissionStatus @default(PENDING)
+  createdAt         DateTime         @default(now())
+
+  // Relations
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@map("commissions")
+}
+
+// ============================================================================
+// Advertising Models
+// ============================================================================
+
+model AdImpression {
+  id         String   @id @default(uuid())
+  adId       String
+  userId     String?
+  pageUrl    String
+  placement  String
+  deviceInfo Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("ad_impressions")
+}
+
+model AnonymousImpression {
+  id        String   @id @default(uuid())
+  adId      String
+  pageUrl   String
+  placement String
+  createdAt DateTime @default(now())
+
+  @@map("anonymous_impressions")
+}
+
+// ============================================================================
+// Analytics and Audit Models
+// ============================================================================
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  userId    String?
+  eventType String
+  payload   Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String
+  action     String
+  targetType String
+  targetId   String
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  // Relations
+  actor User @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId, createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// Notification Models
+// ============================================================================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  read      Boolean          @default(false)
+  metadata  Json             @default("{}")
+  createdAt DateTime         @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ============================================================================
+// Consent Models
+// ============================================================================
+
+model ConsentRecord {
+  id          String   @id @default(uuid())
+  userId      String
+  consentType String
+  granted     Boolean
+  timestamp   DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("consent_records")
+}

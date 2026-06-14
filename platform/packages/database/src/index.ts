@@ -1,9 +1,53 @@
 /**
  * Database Package
  *
- * Provides PostgreSQL database access, schema definitions,
- * migrations, and ORM (Prisma) configuration for the gaming platform.
+ * Provides PostgreSQL database access via Prisma ORM,
+ * schema definitions, migrations, and connection management
+ * for the gaming platform.
  */
+
+// ============================================================================
+// Re-export Prisma Client and Generated Types
+// ============================================================================
+
+export { PrismaClient } from '@prisma/client';
+export type {
+  User,
+  UserProfile,
+  Game,
+  GameSession,
+  GameResult,
+  Transaction,
+  Affiliate,
+  AffiliateClick,
+  Commission,
+  AdImpression,
+  AnonymousImpression,
+  AnalyticsEvent,
+  AuditLog,
+  Notification,
+  ConsentRecord,
+} from '@prisma/client';
+
+export {
+  UserRole,
+  AccountStatus,
+  GameCategory,
+  GameStatus,
+  TransactionStatus,
+  PaymentMethod,
+  AffiliateStatus,
+  AffiliateTier,
+  CommissionStatus,
+  NotificationType,
+} from '@prisma/client';
+
+// ============================================================================
+// Client Singleton
+// ============================================================================
+
+export { getPrismaClient, disconnectPrisma, resetPrismaInstance } from './client';
+export type { PrismaClientConfig } from './client';
 
 // ============================================================================
 // Database Configuration
@@ -21,10 +65,19 @@ export interface DatabaseConfig {
   connectionTimeout: number;
 }
 
-// ============================================================================
-// Connection Management (placeholder - implemented in Task 1.3)
-// ============================================================================
+/**
+ * Build a DATABASE_URL connection string from individual config values.
+ */
+export function buildDatabaseUrl(config: DatabaseConfig): string {
+  const sslParam = config.ssl ? '?sslmode=require' : '';
+  const poolParams = `connection_limit=${config.poolMax}&pool_timeout=${Math.floor(config.connectionTimeout / 1000)}`;
+  const separator = sslParam ? '&' : '?';
+  return `postgresql://${config.username}:${config.password}@${config.host}:${config.port}/${config.database}${sslParam}${separator}${poolParams}`;
+}
 
+/**
+ * Get database configuration from environment variables.
+ */
 export function getDatabaseConfig(): DatabaseConfig {
   return {
     host: process.env.DB_HOST || 'localhost',

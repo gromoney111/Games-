@@ -2,19 +2,33 @@
   "name": "@gaming-platform/database",
   "version": "1.0.0",
   "private": true,
-  "description": "Database package - PostgreSQL schema, migrations, and ORM configuration",
+  "description": "Database package - PostgreSQL schema, Prisma ORM, migrations, and connection management",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "lint": "eslint src/ --ext .ts",
     "test": "jest",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "ts-node src/seed.ts",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma migrate reset"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "seed": "ts-node src/seed.ts"
   },
   "dependencies": {
-    "@gaming-platform/shared-types": "*"
+    "@gaming-platform/shared-types": "*",
+    "@prisma/client": "^5.14.0"
   },
   "devDependencies": {
+    "prisma": "^5.14.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.0"
   }
 }
