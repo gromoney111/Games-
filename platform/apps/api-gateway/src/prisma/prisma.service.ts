@@ -24,6 +24,9 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   gameResult: any;
   transaction: any;
   affiliate: any;
+  consentRecord: any;
+  notification: any;
+  auditLog: any;
 
   async onModuleInit() {
     this.logger.log('Prisma service initialized (placeholder mode)');

@@ -1,9 +1,12 @@
 /**
  * Users Controller Unit Tests
  *
- * Tests for user profile CRUD endpoints:
+ * Tests for user profile CRUD endpoints and GDPR compliance:
  * - GET /users/:id/profile: returns full profile, uses cache
  * - PUT /users/:id/profile: validates and updates profile
+ * - POST /users/:id/deactivate: deactivates account, terminates sessions
+ * - GET /users/:id/export: exports all user data in JSON (GDPR Art. 20)
+ * - DELETE /users/:id: schedules deletion within 30 days (GDPR Art. 17)
  * - Access control: non-admin can only access own profile
  * - Validation error handling
  */
@@ -68,6 +71,12 @@ describe('UsersController', () => {
       updateProfile: jest.fn(),
       getInventory: jest.fn(),
       getGameHistory: jest.fn(),
+      updateStatus: jest.fn(),
+      getTransactions: jest.fn(),
+      getConsentRecords: jest.fn(),
+      getGameSessions: jest.fn(),
+      getNotifications: jest.fn(),
+      scheduleForDeletion: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -276,6 +285,204 @@ describe('UsersController', () => {
       await expect(
         controller.getGameHistory('user-123', otherUser),
       ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('POST /users/:id/deactivate', () => {
+    it('should deactivate account and return export ID for the authenticated user', async () => {
+      mockUsersRepository.findById.mockResolvedValue({
+        id: 'user-123',
+        status: 'ACTIVE',
+      });
+      mockUsersRepository.updateStatus.mockResolvedValue(undefined);
+
+      const result = await controller.deactivateAccount('user-123', mockUser);
+
+      expect(result).toHaveProperty('message');
+      expect(result.message).toContain('Account deactivated');
+      expect(result).toHaveProperty('exportId');
+      expect(typeof result.exportId).toBe('string');
+      expect(mockUsersRepository.updateStatus).toHaveBeenCalledWith('user-123', 'DEACTIVATED');
+    });
+
+    it('should terminate all sessions on deactivation', async () => {
+      mockUsersRepository.findById.mockResolvedValue({
+        id: 'user-123',
+        status: 'ACTIVE',
+      });
+      mockUsersRepository.updateStatus.mockResolvedValue(undefined);
+
+      await controller.deactivateAccount('user-123', mockUser);
+
+      // Verify session-related cache keys were deleted
+      expect(mockCacheClient.del).toHaveBeenCalledWith('cache:sessions:user-123');
+      expect(mockCacheClient.del).toHaveBeenCalledWith('cache:refresh:user-123');
+    });
+
+    it('should throw ForbiddenException when non-admin deactivates another user', async () => {
+      const otherUser: RequestUser = {
+        userId: 'other-user',
+        email: 'other@example.com',
+        role: 'PLAYER',
+      };
+
+      await expect(
+        controller.deactivateAccount('user-123', otherUser),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow admin to deactivate any account', async () => {
+      mockUsersRepository.findById.mockResolvedValue({
+        id: 'user-123',
+        status: 'ACTIVE',
+      });
+      mockUsersRepository.updateStatus.mockResolvedValue(undefined);
+
+      const result = await controller.deactivateAccount('user-123', mockAdmin);
+
+      expect(result).toHaveProperty('message');
+      expect(result).toHaveProperty('exportId');
+    });
+
+    it('should throw NotFoundException when deactivating non-existent user', async () => {
+      mockUsersRepository.findById.mockResolvedValue(null);
+
+      await expect(
+        controller.deactivateAccount('user-123', mockUser),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('GET /users/:id/export', () => {
+    it('should export all user data in GDPR-compliant JSON format', async () => {
+      const mockUserData = {
+        id: 'user-123',
+        email: 'player@example.com',
+        username: 'testplayer',
+        passwordHash: 'secret-hash',
+        role: 'PLAYER',
+        status: 'ACTIVE',
+        profile: mockProfile,
+      };
+      mockUsersRepository.findById.mockResolvedValue(mockUserData);
+      mockUsersRepository.findProfileByUserId.mockResolvedValue(mockProfile);
+      mockUsersRepository.getGameHistory.mockResolvedValue([]);
+      mockUsersRepository.getGameSessions.mockResolvedValue([]);
+      mockUsersRepository.getTransactions.mockResolvedValue([]);
+      mockUsersRepository.getConsentRecords.mockResolvedValue([]);
+      mockUsersRepository.getNotifications.mockResolvedValue([]);
+
+      const result = await controller.exportData('user-123', mockUser);
+
+      expect(result).toHaveProperty('exportDate');
+      expect(result).toHaveProperty('format', 'JSON');
+      expect(result).toHaveProperty('gdprCompliance', 'GDPR Article 20 - Right to Data Portability');
+      expect(result).toHaveProperty('user');
+      expect(result).toHaveProperty('profile');
+      expect(result).toHaveProperty('gameHistory');
+      expect(result).toHaveProperty('transactions');
+      expect(result).toHaveProperty('consentRecords');
+      // Ensure password hash is NOT included in export
+      expect((result as any).user.passwordHash).toBeUndefined();
+    });
+
+    it('should throw ForbiddenException when non-admin exports another user data', async () => {
+      const otherUser: RequestUser = {
+        userId: 'other-user',
+        email: 'other@example.com',
+        role: 'PLAYER',
+      };
+
+      await expect(
+        controller.exportData('user-123', otherUser),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow admin to export any user data', async () => {
+      const mockUserData = {
+        id: 'user-123',
+        email: 'player@example.com',
+        username: 'testplayer',
+        passwordHash: 'secret-hash',
+        role: 'PLAYER',
+        status: 'ACTIVE',
+        profile: mockProfile,
+      };
+      mockUsersRepository.findById.mockResolvedValue(mockUserData);
+      mockUsersRepository.findProfileByUserId.mockResolvedValue(mockProfile);
+      mockUsersRepository.getGameHistory.mockResolvedValue([]);
+      mockUsersRepository.getGameSessions.mockResolvedValue([]);
+      mockUsersRepository.getTransactions.mockResolvedValue([]);
+      mockUsersRepository.getConsentRecords.mockResolvedValue([]);
+      mockUsersRepository.getNotifications.mockResolvedValue([]);
+
+      const result = await controller.exportData('user-123', mockAdmin);
+
+      expect(result).toHaveProperty('exportDate');
+      expect(result).toHaveProperty('gdprCompliance');
+    });
+
+    it('should throw NotFoundException when exporting non-existent user data', async () => {
+      mockUsersRepository.findById.mockResolvedValue(null);
+
+      await expect(
+        controller.exportData('user-123', mockUser),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('DELETE /users/:id', () => {
+    it('should schedule account deletion within 30 days', async () => {
+      mockUsersRepository.findById.mockResolvedValue({
+        id: 'user-123',
+        status: 'ACTIVE',
+      });
+      mockUsersRepository.scheduleForDeletion.mockResolvedValue(undefined);
+
+      const result = await controller.deleteAccount('user-123', mockUser);
+
+      expect(result).toHaveProperty('message');
+      expect(result.message).toContain('scheduled for deletion');
+      expect(result.message).toContain('30 days');
+      expect(result).toHaveProperty('deletionDate');
+      // Verify deletion date is approximately 30 days from now
+      const deletionDate = new Date(result.deletionDate);
+      const now = new Date();
+      const diffDays = Math.round((deletionDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      expect(diffDays).toBe(30);
+    });
+
+    it('should throw ForbiddenException when non-admin deletes another user', async () => {
+      const otherUser: RequestUser = {
+        userId: 'other-user',
+        email: 'other@example.com',
+        role: 'PLAYER',
+      };
+
+      await expect(
+        controller.deleteAccount('user-123', otherUser),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow admin to delete any user account', async () => {
+      mockUsersRepository.findById.mockResolvedValue({
+        id: 'user-123',
+        status: 'ACTIVE',
+      });
+      mockUsersRepository.scheduleForDeletion.mockResolvedValue(undefined);
+
+      const result = await controller.deleteAccount('user-123', mockAdmin);
+
+      expect(result).toHaveProperty('message');
+      expect(result).toHaveProperty('deletionDate');
+    });
+
+    it('should throw NotFoundException when deleting non-existent user', async () => {
+      mockUsersRepository.findById.mockResolvedValue(null);
+
+      await expect(
+        controller.deleteAccount('user-123', mockUser),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
