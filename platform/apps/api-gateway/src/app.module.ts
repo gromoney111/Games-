@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { GamesModule } from './games/games.module';
 import { SessionsModule } from './sessions/sessions.module';
+import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RateLimitGuard, REDIS_CLIENT } from './common/guards/rate-limit.guard';
 import appConfig from './config/app.config';
@@ -77,6 +78,7 @@ const RedisClientProvider = {
     // Feature modules
     GamesModule,
     SessionsModule,
+    LeaderboardModule,
     // PaymentsModule,
     // AffiliatesModule,
     // AdsModule,
