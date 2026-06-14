@@ -6,6 +6,36 @@
  */
 
 // ============================================================================
+// Queue Infrastructure
+// ============================================================================
+
+export * from './queue/index.js';
+
+// ============================================================================
+// Redis Module
+// ============================================================================
+
+export {
+  RedisClient,
+  RedisConfig,
+  defaultRedisConfig,
+  RedisNamespaces,
+  RedisNamespace,
+  buildKey,
+  sessionKey,
+  rateLimitKey,
+  profileCacheKey,
+  leaderboardCacheKey,
+  adFrequencyKey,
+  failedAttemptsKey,
+  refreshTokenKey,
+  TTL,
+  TTLKey,
+  getTTL,
+  CacheManager,
+} from './redis/index.js';
+
+// ============================================================================
 // ID Generation
 // ============================================================================
 

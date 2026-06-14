@@ -12,9 +12,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@gaming-platform/shared-types": "*"
+    "@gaming-platform/shared-types": "*",
+    "amqplib": "^0.10.4"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.5",
     "typescript": "^5.4.0"
   }
 }
