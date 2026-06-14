@@ -8,52 +8,52 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
 
 ## Tasks
 
-- [ ] 1. Project infrastructure and shared foundations
-  - [ ] 1.1 Initialize monorepo structure with shared packages
+- [x] 1. Project infrastructure and shared foundations
+  - [x] 1.1 Initialize monorepo structure with shared packages
     - Create monorepo with Turborepo/Nx containing: `apps/api-gateway`, `apps/web`, `apps/mobile`, `apps/admin`, `packages/shared-types`, `packages/database`, `packages/utils`
     - Configure TypeScript project references, ESLint, Prettier, and base tsconfig
     - Set up package.json workspaces and scripts
     - _Requirements: 24.1_
 
-  - [ ] 1.2 Define shared TypeScript types and interfaces
+  - [x] 1.2 Define shared TypeScript types and interfaces
     - Create type definitions mapping all Lean data models: `User`, `Game`, `Transaction`, `Affiliate`, `GameSession`, `GameState`, `GameAction`
     - Define enums for `UserRole`, `AccountStatus`, `GameCategory`, `TransactionStatus`, `AffiliateTier`, `AffiliateStatus`
     - Define service interface contracts: `IUserService`, `IGameService`, `IPaymentService`, `IAffiliateService`, `IAnalyticsService`, `IAdService`
     - _Requirements: 1, 2, 3, 4, 7, 9_
 
-  - [ ] 1.3 Set up PostgreSQL database schema and migrations
+  - [x] 1.3 Set up PostgreSQL database schema and migrations
     - Create migration files for all tables: users, user_profiles, games, game_sessions, game_results, transactions, affiliates, affiliate_clicks, commissions, ad_impressions, analytics_events, audit_logs, notifications
     - Define indexes: composite on (userId, gameId, createdAt), unique on email, unique on game slug, unique on affiliate tracking code
     - Set up Prisma ORM with schema validation
     - _Requirements: 18.3, 19.5, 24.3_
 
-  - [ ] 1.4 Set up Redis configuration and connection module
+  - [x] 1.4 Set up Redis configuration and connection module
     - Create Redis client module with connection pooling
     - Define key namespaces for sessions, rate limiting, caching, and frequency caps
     - Implement TTL management utilities (session TTL, 5-min profile cache, 30-sec leaderboard cache)
     - _Requirements: 19.4, 19.5_
 
-  - [ ] 1.5 Set up message queue infrastructure
+  - [x] 1.5 Set up message queue infrastructure
     - Configure RabbitMQ/SQS connection with TypeScript client
     - Define queues: notifications, analytics-events, commission-calculations
     - Implement publisher and consumer base classes with retry logic
     - _Requirements: 21.4_
 
-  - [ ] 1.6 Set up Docker and docker-compose for local development
+  - [x] 1.6 Set up Docker and docker-compose for local development
     - Create Dockerfiles for each service
     - Create docker-compose.yml with PostgreSQL, Redis, RabbitMQ, Elasticsearch containers
     - Configure environment variables and secrets management
     - _Requirements: 24.1, 24.3_
 
-- [ ] 2. API Gateway and authentication service
-  - [ ] 2.1 Implement API Gateway with NestJS
+- [x] 2. API Gateway and authentication service
+  - [x] 2.1 Implement API Gateway with NestJS
     - Create NestJS application with route forwarding to microservices
     - Implement JWT RS256 token validation middleware
     - Implement request logging and correlation ID propagation
     - Configure CORS with strict origin whitelist
     - _Requirements: 17.1, 18.5_
 
-  - [ ] 2.2 Implement rate limiting middleware
+  - [x] 2.2 Implement rate limiting middleware
     - Create sliding window rate limiter using Redis (100 req/min per user)
     - Return 429 Too Many Requests with Retry-After header on limit exceeded
     - Implement separate rate limits for different endpoint categories
@@ -63,13 +63,13 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 26: Rate Limiting Enforcement**
     - **Validates: Requirements 17.2, 17.3**
 
-  - [ ] 2.4 Implement webhook signature validation
+  - [x] 2.4 Implement webhook signature validation
     - Create middleware for validating Stripe webhook signatures
     - Create middleware for validating external service callback signatures
     - Return 403 for invalid signatures
     - _Requirements: 17.5_
 
-  - [ ] 2.5 Implement service unavailability handling
+  - [x] 2.5 Implement service unavailability handling
     - Return 503 with Retry-After header when backend services are down
     - Implement health check endpoints for all downstream services
     - _Requirements: 17.4_
@@ -78,8 +78,8 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 25: JWT Validation Correctness**
     - **Validates: Requirement 17.1**
 
-- [ ] 3. User service — registration and authentication
-  - [ ] 3.1 Implement user registration endpoint
+- [x] 3. User service — registration and authentication
+  - [x] 3.1 Implement user registration endpoint
     - Create `POST /auth/register` accepting email and password
     - Validate email (RFC 5322) and password (min 8 chars, complexity)
     - Hash password with Argon2id (per-user salt, 3 iterations)
@@ -87,7 +87,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - Return descriptive error (without revealing account details) if email exists
     - _Requirements: 1.1, 1.2, 1.7, 2.4, 2.5_
 
-  - [ ] 3.2 Implement user authentication endpoint
+  - [x] 3.2 Implement user authentication endpoint
     - Create `POST /auth/login` accepting email and password
     - Implement constant-time response regardless of user existence (dummy hash on miss)
     - Issue access token (15-min expiry) and refresh token (7-day expiry)
@@ -103,14 +103,14 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 2: Account Lockout Enforcement**
     - **Validates: Requirements 1.5, 1.6**
 
-  - [ ] 3.5 Implement token refresh endpoint
+  - [x] 3.5 Implement token refresh endpoint
     - Create `POST /auth/refresh` accepting refresh token
     - Validate refresh token and issue new token pair
     - Invalidate old refresh token (rotation)
     - _Requirements: 1.3_
 
 - [ ] 4. User service — profile management
-  - [ ] 4.1 Implement user profile CRUD endpoints
+  - [~] 4.1 Implement user profile CRUD endpoints
     - Create `GET /users/:id/profile` returning full profile
     - Create `PUT /users/:id/profile` with validation (username 3-30 alphanumeric, valid email)
     - Implement profile caching in Redis (5-min TTL)
@@ -125,17 +125,17 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 4: Profile Update Round-Trip**
     - **Validates: Requirements 2.1, 2.2**
 
-  - [ ] 4.4 Implement GDPR data portability and account deactivation
+  - [~] 4.4 Implement GDPR data portability and account deactivation
     - Create `POST /users/:id/deactivate` to deactivate account
     - Create `GET /users/:id/export` to export all user data in JSON format
     - Create `DELETE /users/:id` for right to erasure (30-day deletion)
     - _Requirements: 2.6, 13.4, 13.5_
 
-- [ ] 5. Checkpoint - Core user services
+- [~] 5. Checkpoint - Core user services
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 6. Game service — catalog and discovery
-  - [ ] 6.1 Implement game catalog endpoints
+  - [~] 6.1 Implement game catalog endpoints
     - Create `GET /games` with pagination, category filter, tag filter, and search
     - Create `GET /games/:slug` returning full game detail with SEO metadata
     - Validate slug uniqueness and URL-safety, title ≤ 100 chars, description ≤ 5000 chars
@@ -146,7 +146,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 5: Game Catalog Filter Correctness**
     - **Validates: Requirements 3.1, 3.3, 3.4**
 
-  - [ ] 6.3 Implement game administration endpoints
+  - [~] 6.3 Implement game administration endpoints
     - Create `POST /admin/games` for adding games
     - Create `PUT /admin/games/:id` for updating games
     - Create `PATCH /admin/games/:id/status` for publish/unpublish
@@ -154,7 +154,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - _Requirements: 16.3, 16.5_
 
 - [ ] 7. Game service — session management
-  - [ ] 7.1 Implement game session lifecycle
+  - [~] 7.1 Implement game session lifecycle
     - Create `POST /games/:id/sessions` to start a new session
     - Validate user is active and game is published
     - Enforce concurrent session limit (reject with info about active sessions)
@@ -162,7 +162,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - Track game start event in analytics
     - _Requirements: 4.1, 4.2_
 
-  - [ ] 7.2 Implement game action processing
+  - [~] 7.2 Implement game action processing
     - Create `POST /games/sessions/:id/actions` to process game actions
     - Validate action against current state (reject invalid with error, no state change)
     - Compute new state deterministically and update Redis
@@ -178,7 +178,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 8: Invalid Action State Preservation**
     - **Validates: Requirement 4.4**
 
-  - [ ] 7.5 Implement session end and timeout handling
+  - [~] 7.5 Implement session end and timeout handling
     - Create `POST /games/sessions/:id/end` to end session
     - Persist final score to PostgreSQL, clean up Redis session
     - Implement background job for session timeout expiry
@@ -193,7 +193,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 9: Concurrent Session Limit Enforcement**
     - **Validates: Requirement 4.2**
 
-  - [ ] 7.8 Implement game state corruption recovery
+  - [~] 7.8 Implement game state corruption recovery
     - Detect inconsistent Redis state (negative lives, invalid level)
     - Attempt recovery from last valid checkpoint
     - If no checkpoint available, gracefully end session with last valid score
@@ -201,7 +201,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - _Requirements: 5.3, 5.4_
 
 - [ ] 8. Game service — leaderboard and scoring
-  - [ ] 8.1 Implement leaderboard endpoints
+  - [~] 8.1 Implement leaderboard endpoints
     - Create `GET /games/:id/leaderboard` with time period filter and limit (1-1000)
     - Sort descending by score, break ties by earliest timestamp
     - Assign unique sequential ranks 1..N
@@ -212,11 +212,11 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 10: Leaderboard Ordering Invariant**
     - **Validates: Requirements 6.1, 6.2, 6.4**
 
-- [ ] 9. Checkpoint - Game services complete
+- [~] 9. Checkpoint - Game services complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Payment service — in-app purchases
-  - [ ] 10.1 Implement purchase initiation
+  - [~] 10.1 Implement purchase initiation
     - Create `POST /purchases/initiate` accepting item ID and payment method
     - Validate purchase eligibility: active account, age restriction, daily limit (rolling 24h), stock availability
     - Create payment intent with Stripe
@@ -236,20 +236,20 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 11: Transaction Amount Validity**
     - **Validates: Requirements 7.5, 7.6**
 
-  - [ ] 10.5 Implement payment webhook processing
+  - [~] 10.5 Implement payment webhook processing
     - Create `POST /webhooks/stripe` for payment.succeeded and payment.failed events
     - Validate webhook signature
     - On success: mark transaction completed, grant item to user, send notification
     - On failure: mark transaction failed, notify user
     - _Requirements: 7.2, 8.5_
 
-  - [ ] 10.6 Implement refund processing
+  - [~] 10.6 Implement refund processing
     - Create `POST /purchases/:id/refund` with reason
     - Validate refund amount does not exceed original
     - Process refund through Stripe, update transaction status
     - _Requirements: 7.6_
 
-  - [ ] 10.7 Implement payment timeout and retry handling
+  - [~] 10.7 Implement payment timeout and retry handling
     - Mark transactions as pending_confirmation on gateway timeout (30s)
     - Background job retries status check every 60s for up to 24h
     - Auto-grant item if confirmed within retry period
@@ -258,7 +258,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
 - [ ] 11. Affiliate service
-  - [ ] 11.1 Implement affiliate registration and management
+  - [~] 11.1 Implement affiliate registration and management
     - Create `POST /affiliates/apply` for affiliate application
     - Create `GET /affiliates/:id` for affiliate details
     - Generate unique URL-safe tracking codes on approval
@@ -269,13 +269,13 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 16: Affiliate Tracking Code Uniqueness**
     - **Validates: Requirement 9.2**
 
-  - [ ] 11.3 Implement affiliate click and conversion tracking
+  - [~] 11.3 Implement affiliate click and conversion tracking
     - Create `GET /r/:trackingCode` redirect endpoint for click tracking
     - Record click events with IP, timestamp, user agent
     - Track conversion events when tracked users complete qualifying actions
     - _Requirements: 9.3, 9.4_
 
-  - [ ] 11.4 Implement commission calculation
+  - [~] 11.4 Implement commission calculation
     - Calculate commission based on affiliate tier (Bronze 5%, Silver 10%, Gold 15%, Platinum 20%)
     - Apply promotional bonus multipliers
     - Cap effective rate at maximum allowed commission
@@ -291,7 +291,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 15: Affiliate Fraud Threshold Enforcement**
     - **Validates: Requirements 10.4, 11.1**
 
-  - [ ] 11.7 Implement affiliate payout processing
+  - [~] 11.7 Implement affiliate payout processing
     - Create `POST /affiliates/:id/payout` for payout requests
     - Enforce minimum $50 payout threshold
     - Process payout through payment gateway
@@ -301,24 +301,24 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 17: Minimum Payout Threshold**
     - **Validates: Requirement 10.5**
 
-  - [ ] 11.9 Implement affiliate fraud detection
+  - [~] 11.9 Implement affiliate fraud detection
     - Detect abnormal click patterns (>100/min from single IP)
     - Detect geographic impossibility
     - Temporarily suspend and flag suspicious affiliates
     - Admin confirm/reject workflow (restore or ban)
     - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
-- [ ] 12. Checkpoint - Monetization services complete
+- [~] 12. Checkpoint - Monetization services complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 13. Ad service — Google Ads integration
-  - [ ] 13.1 Implement ad placement and serving
+  - [~] 13.1 Implement ad placement and serving
     - Create `GET /ads/placement` accepting page context and placement config
     - Return appropriate ad unit based on context
     - Implement frequency capping using Redis counters with TTL window
     - _Requirements: 12.1, 12.4_
 
-  - [ ] 13.2 Implement ad impression and click tracking
+  - [~] 13.2 Implement ad impression and click tracking
     - Create `POST /ads/:id/impression` for recording impressions
     - Create `POST /ads/:id/click` for recording clicks
     - Check user consent: store personalized impression if consent given, anonymous if not
@@ -333,20 +333,20 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 19: Ad Frequency Cap Enforcement**
     - **Validates: Requirement 12.4**
 
-  - [ ] 13.5 Implement ad revenue reporting
+  - [~] 13.5 Implement ad revenue reporting
     - Create `GET /admin/ads/revenue` with date range filter
     - Aggregate impressions, clicks, and revenue per placement
     - _Requirements: 12.1_
 
 - [ ] 14. GDPR and consent management
-  - [ ] 14.1 Implement consent management system
+  - [~] 14.1 Implement consent management system
     - Create `POST /users/:id/consent` for granting/withdrawing consent
     - Track consent changes in audit trail with timestamps
     - Immediately stop personalized tracking on withdrawal
     - Switch to anonymous mode mid-request if consent withdrawn during processing
     - _Requirements: 13.1, 13.2, 13.6_
 
-  - [ ] 14.2 Implement PII data purge on consent withdrawal
+  - [~] 14.2 Implement PII data purge on consent withdrawal
     - Purge PII-linked records created after consent withdrawal timestamp
     - Preserve records created before withdrawal
     - Log compliance events for audit
@@ -356,13 +356,13 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 20: Consent Withdrawal Data Purge**
     - **Validates: Requirements 13.2, 13.3**
 
-  - [ ] 14.4 Implement cookie consent banner and legal pages
+  - [~] 14.4 Implement cookie consent banner and legal pages
     - Create endpoints serving Terms of Service, Privacy Policy, Cookie Policy, Refund Policy
     - Implement cookie consent banner logic (obtain explicit consent before non-essential cookies)
     - Ensure Google AdSense compliance for content guidelines
     - _Requirements: 22.1, 22.2, 22.3_
 
-  - [ ] 14.5 Implement age restriction enforcement
+  - [~] 14.5 Implement age restriction enforcement
     - Validate user age against content and purchase restrictions
     - Block age-restricted content and purchases for underage users
     - _Requirements: 22.4_
@@ -372,7 +372,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Validates: Requirement 22.4**
 
 - [ ] 15. SEO service
-  - [ ] 15.1 Implement SEO metadata generation
+  - [~] 15.1 Implement SEO metadata generation
     - Create SEO metadata generator for game pages
     - Truncate meta title to ≤ 60 chars (with ellipsis + platform suffix)
     - Truncate meta description to ≤ 160 chars
@@ -384,7 +384,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 21: SEO Metadata Length Constraints**
     - **Validates: Requirements 14.1, 14.2, 14.5**
 
-  - [ ] 15.3 Implement JSON-LD structured data generation
+  - [~] 15.3 Implement JSON-LD structured data generation
     - Generate schema.org VideoGame JSON-LD for each game page
     - Include required fields: name, description, genre, url, image, aggregateRating
     - _Requirements: 14.3_
@@ -394,14 +394,14 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Validates: Requirement 14.3**
 
 - [ ] 16. Analytics service
-  - [ ] 16.1 Implement event tracking and ingestion
+  - [~] 16.1 Implement event tracking and ingestion
     - Create `POST /analytics/events` for event recording
     - Accept events: game_start, game_end, purchase, page_view
     - Store with full context (user, timestamp, event-specific data)
     - Process events asynchronously via message queue
     - _Requirements: 15.1_
 
-  - [ ] 16.2 Implement metrics and reporting endpoints
+  - [~] 16.2 Implement metrics and reporting endpoints
     - Create `GET /admin/analytics/users` for user engagement metrics
     - Create `GET /admin/analytics/games` for game performance metrics
     - Create `GET /admin/analytics/revenue` for financial metrics (gross, refunds, net, by source)
@@ -412,30 +412,30 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 23: Revenue Metrics Consistency**
     - **Validates: Requirement 15.4**
 
-  - [ ] 16.4 Implement data retention policy
+  - [~] 16.4 Implement data retention policy
     - Create background job to purge raw events beyond retention period
     - Preserve aggregated summaries permanently
     - _Requirements: 15.5_
 
-  - [ ] 16.5 Implement Google Search Console and Analytics integration
+  - [~] 16.5 Implement Google Search Console and Analytics integration
     - Integrate Google Search Console API for indexing management
     - Integrate Google Analytics 4 for behavior tracking
     - Create SEO metrics endpoint for admin dashboard
     - _Requirements: 15.1_
 
 - [ ] 17. Notification service
-  - [ ] 17.1 Implement notification processing
+  - [~] 17.1 Implement notification processing
     - Create notification consumer listening to message queue
     - Implement push notification sending (Firebase Cloud Messaging)
     - Implement email notification sending (SendGrid)
     - Handle notification types: purchase confirmation, commission earned, security alerts
     - _Requirements: 21.1, 21.2, 21.3, 21.4_
 
-- [ ] 18. Checkpoint - All backend services complete
+- [~] 18. Checkpoint - All backend services complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 19. Admin dashboard
-  - [ ] 19.1 Implement admin dashboard backend
+  - [~] 19.1 Implement admin dashboard backend
     - Create `GET /admin/dashboard` returning real-time metrics (active users, sessions, revenue, health)
     - Create `POST /admin/users/:id/suspend`, `POST /admin/users/:id/reactivate`, `DELETE /admin/users/:id`
     - Record audit log entries for all admin actions
@@ -446,7 +446,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Property 24: Admin Authorization Enforcement**
     - **Validates: Requirement 16.5**
 
-  - [ ] 19.3 Implement admin dashboard frontend
+  - [~] 19.3 Implement admin dashboard frontend
     - Create React admin SPA with authentication
     - Build real-time metrics dashboard with charts
     - Build user management, game management, and affiliate management pages
@@ -454,74 +454,74 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - _Requirements: 16.1, 16.2, 16.3, 16.4_
 
 - [ ] 20. Web application frontend
-  - [ ] 20.1 Implement web SPA core shell and routing
+  - [~] 20.1 Implement web SPA core shell and routing
     - Create React SPA with routing: home, game catalog, game detail, user profile, leaderboard
     - Implement authentication flow (login, register, token management)
     - Set up responsive layout with mobile-first design
     - _Requirements: 1, 2, 3_
 
-  - [ ] 20.2 Implement game catalog and discovery UI
+  - [~] 20.2 Implement game catalog and discovery UI
     - Build game browsing page with category filters, search, and pagination
     - Build game detail page with SEO metadata, structured data, and Open Graph tags
     - _Requirements: 3.1, 3.2, 14.1, 14.3_
 
-  - [ ] 20.3 Implement game player and session UI
+  - [~] 20.3 Implement game player and session UI
     - Build game container component with HTML5 Canvas/WebGL rendering
     - Implement session lifecycle: start, action dispatch, end
     - Display real-time score and game state
     - Implement leaderboard display
     - _Requirements: 4.1, 4.3, 4.5, 6.1_
 
-  - [ ] 20.4 Implement user dashboard
+  - [~] 20.4 Implement user dashboard
     - Build profile management page
     - Build game history and statistics views
     - Build inventory and purchased items view
     - Build notification center
     - _Requirements: 2.1, 2.2_
 
-  - [ ] 20.5 Implement purchase and store UI
+  - [~] 20.5 Implement purchase and store UI
     - Build virtual item store with purchase flow
     - Integrate Stripe Elements for payment
     - Display purchase history and receipts
     - _Requirements: 7.1, 7.2_
 
-  - [ ] 20.6 Implement cookie consent and legal pages
+  - [~] 20.6 Implement cookie consent and legal pages
     - Build cookie consent banner component
     - Build legal page templates (Terms, Privacy, Cookies, Refund)
     - Implement consent preference management UI
     - _Requirements: 22.1, 22.2, 13.1_
 
-  - [ ] 20.7 Implement ad placement components
+  - [~] 20.7 Implement ad placement components
     - Build ad slot components for various placements
     - Integrate Google AdSense/Ad Manager SDK
     - Respect user consent preferences for ad personalization
     - _Requirements: 12.1, 12.5, 12.6_
 
 - [ ] 21. Mobile application
-  - [ ] 21.1 Implement React Native mobile app core
+  - [~] 21.1 Implement React Native mobile app core
     - Create React Native project with navigation (home, catalog, profile, settings)
     - Implement authentication flow with secure token storage
     - Set up push notification handling (Firebase Cloud Messaging)
     - _Requirements: 1, 21.1_
 
-  - [ ] 21.2 Implement mobile game experience
+  - [~] 21.2 Implement mobile game experience
     - Build game catalog browsing and filtering
     - Build game player component optimized for mobile
     - Implement in-app purchase flow (Google Play / App Store billing)
     - _Requirements: 3.1, 4.1, 7.1_
 
-- [ ] 22. Checkpoint - Frontend applications complete
+- [~] 22. Checkpoint - Frontend applications complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 23. Game integration module
-  - [ ] 23.1 Implement game integration SDK and framework
+  - [~] 23.1 Implement game integration SDK and framework
     - Create game integration interface/contract that all games must implement
     - Define game lifecycle hooks: init, start, processAction, getState, end
     - Build game asset loader with CDN integration
     - Create 3 sample game implementations (puzzle, action, casual) as reference
     - _Requirements: 3.5, 4.1, 4.3_
 
-  - [ ] 23.2 Integrate 25-30 HTML5 games
+  - [~] 23.2 Integrate 25-30 HTML5 games
     - Integrate games across categories: puzzle, action, strategy, casual, multiplayer, educational
     - Configure game-specific settings (difficulty levels, session timeouts, scoring rules)
     - Set up CDN delivery for all game assets
@@ -529,7 +529,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - _Requirements: 3.1, 4.1_
 
 - [ ] 24. Security hardening
-  - [ ] 24.1 Implement platform security measures
+  - [~] 24.1 Implement platform security measures
     - Configure AES-256-GCM encryption at rest for sensitive database columns
     - Enforce TLS 1.3 for all service-to-service and client-server communication
     - Implement parameterized queries across all database interactions (validate via Prisma)
@@ -547,25 +547,25 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - **Validates: Requirements 8.5, 13.6, 16.2**
 
 - [ ] 25. Database resilience and performance
-  - [ ] 25.1 Implement database connection resilience
+  - [~] 25.1 Implement database connection resilience
     - Configure connection pool with queue timeout (5 seconds)
     - Implement auto-scaling of connection pool up to hard limit
     - Implement circuit breaker (opens after 10 consecutive failures, redirects reads to replica)
     - Return 503 with Retry-After on pool exhaustion
     - _Requirements: 20.1, 20.2, 20.3, 20.4_
 
-  - [ ] 25.2 Implement performance optimizations
+  - [~] 25.2 Implement performance optimizations
     - Configure Redis caching for all specified TTLs
     - Set up read replicas for analytics queries
     - Configure horizontal auto-scaling policies (CPU, memory, queue depth)
     - Verify API response targets: 200ms P95 general, 50ms P95 game actions
     - _Requirements: 19.1, 19.2, 19.3, 19.4, 19.5, 19.6_
 
-- [ ] 26. Checkpoint - Integration and security complete
+- [~] 26. Checkpoint - Integration and security complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 27. Testing infrastructure
-  - [ ] 27.1 Implement unit test suite
+  - [~] 27.1 Implement unit test suite
     - Write unit tests for authentication logic (hashing, token generation, rate limiting)
     - Write unit tests for game state transitions and score calculations
     - Write unit tests for commission calculation and tier rates
@@ -574,7 +574,7 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - Achieve 90% line coverage for core business logic
     - _Requirements: 23.1_
 
-  - [ ] 27.2 Implement integration test suite
+  - [~] 27.2 Implement integration test suite
     - Write integration tests for complete API request/response cycles through gateway
     - Write payment flow tests using Stripe test mode
     - Write game session tests for full lifecycle
@@ -582,20 +582,20 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - Write cross-service communication tests under failure conditions
     - _Requirements: 23.2_
 
-  - [ ] 27.3 Implement end-to-end test suite
+  - [~] 27.3 Implement end-to-end test suite
     - Write E2E tests for user journey: registration → game play → purchase
     - Write E2E tests for affiliate journey: registration → link → click → conversion → payout
     - Write E2E tests for admin journey: game management → user moderation → reporting
     - _Requirements: 23.3_
 
-  - [ ] 27.4 Implement performance and security tests
+  - [~] 27.4 Implement performance and security tests
     - Write load tests validating response time targets under 10,000 concurrent sessions
     - Write security tests for auth, authorization, input sanitization, and encryption
     - Integrate dependency vulnerability scanning into CI pipeline
     - _Requirements: 23.4, 23.5, 18.7_
 
 - [ ] 28. CI/CD pipeline and deployment
-  - [ ] 28.1 Implement CI/CD pipeline
+  - [~] 28.1 Implement CI/CD pipeline
     - Create GitHub Actions / GitLab CI pipeline configuration
     - Build container images for all services
     - Run lint, unit tests, integration tests in pipeline
@@ -603,21 +603,21 @@ Tasks are ordered for incremental delivery: infrastructure first, then core serv
     - Deploy to production with manual approval gate
     - _Requirements: 24.1_
 
-  - [ ] 28.2 Implement Kubernetes deployment manifests
+  - [~] 28.2 Implement Kubernetes deployment manifests
     - Create Helm charts for all microservices
     - Configure horizontal pod autoscaling
     - Configure health checks and readiness probes
     - Set up phased rollout with rollback capability (< 5 minutes)
     - _Requirements: 24.2, 24.3_
 
-  - [ ] 28.3 Implement monitoring and observability
+  - [~] 28.3 Implement monitoring and observability
     - Deploy Prometheus for metrics collection
     - Deploy Grafana dashboards (system health, request rates, error rates, latency)
     - Configure alerting on threshold violations
     - Deploy centralized logging (ELK stack)
     - _Requirements: 24.4, 24.5_
 
-- [ ] 29. Final checkpoint - Platform deployment ready
+- [~] 29. Final checkpoint - Platform deployment ready
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

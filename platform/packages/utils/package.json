@@ -1,0 +1,22 @@
+{
+  "name": "@gaming-platform/utils",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared utility functions for the gaming platform",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src/ --ext .ts",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@gaming-platform/shared-types": "*",
+    "amqplib": "^0.10.4"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.5",
+    "typescript": "^5.4.0"
+  }
+}

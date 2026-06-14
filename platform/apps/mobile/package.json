@@ -1,0 +1,24 @@
+{
+  "name": "@gaming-platform/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mobile Application - React Native gaming platform",
+  "main": "./dist/App.js",
+  "types": "./dist/App.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "react-native start",
+    "lint": "eslint src/ --ext .ts,.tsx",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@gaming-platform/shared-types": "*",
+    "@gaming-platform/utils": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/react": "^18.0.0",
+    "@types/react-native": "^0.72.0"
+  }
+}
