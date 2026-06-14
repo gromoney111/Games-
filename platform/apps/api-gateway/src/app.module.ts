@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
+import { GamesModule } from './games/games.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RateLimitGuard, REDIS_CLIENT } from './common/guards/rate-limit.guard';
 import appConfig from './config/app.config';
@@ -72,8 +73,8 @@ const RedisClientProvider = {
     UsersModule,
     HealthModule,
 
-    // Feature modules (placeholders - will be added in later tasks)
-    // GamesModule,
+    // Feature modules
+    GamesModule,
     // PaymentsModule,
     // AffiliatesModule,
     // AdsModule,
