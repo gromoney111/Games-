@@ -1,0 +1,20 @@
+{
+  "name": "@gaming-platform/database",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Database package - PostgreSQL schema, migrations, and ORM configuration",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src/ --ext .ts",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@gaming-platform/shared-types": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

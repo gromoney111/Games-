@@ -1,0 +1,24 @@
+{
+  "name": "@gaming-platform/web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web SPA - React-based gaming platform frontend",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "vite",
+    "lint": "eslint src/ --ext .ts,.tsx",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@gaming-platform/shared-types": "*",
+    "@gaming-platform/utils": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@gaming-platform/api-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API Gateway service - centralized entry point for all client requests",
+  "main": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn src/main.ts",
+    "lint": "eslint src/ --ext .ts",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@gaming-platform/shared-types": "*",
+    "@gaming-platform/utils": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
