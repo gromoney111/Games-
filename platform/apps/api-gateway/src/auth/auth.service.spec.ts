@@ -12,14 +12,14 @@ import { ConflictException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CryptoService } from './crypto.service';
 import { UsersService } from '../users/users.service';
+import { RegisterDto } from './dto/register.dto';
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let cryptoService: CryptoService;
-  let usersService: UsersService;
+  let cryptoService: jest.Mocked<CryptoService>;
+  let usersService: jest.Mocked<UsersService>;
 
   beforeEach(() => {
-    // Create mock services
     cryptoService = {
       hashPassword: jest.fn().mockResolvedValue({
         hash: '$argon2id$v=19$m=65536,t=3,p=4$salt$hash',
@@ -31,7 +31,7 @@ describe('AuthService', () => {
       generateSalt: jest.fn().mockReturnValue('a'.repeat(64)),
       verifyPassword: jest.fn(),
       dummyHashComputation: jest.fn(),
-    } as unknown as CryptoService;
+    } as unknown as jest.Mocked<CryptoService>;
 
     usersService = {
       emailExists: jest.fn().mockResolvedValue(false),
@@ -51,19 +51,19 @@ describe('AuthService', () => {
       findByEmail: jest.fn(),
       findById: jest.fn(),
       findByUsername: jest.fn(),
-    } as unknown as UsersService;
+    } as unknown as jest.Mocked<UsersService>;
 
     authService = new AuthService(cryptoService, usersService);
   });
 
   describe('register', () => {
-    const validDto = {
+    const validDto: RegisterDto = {
       email: 'newuser@example.com',
       password: 'SecureP@ss1',
       username: 'newuser',
     };
 
-    it('should successfully register a new user', async () => {
+    it('should successfully register a new user and return result with userId', async () => {
       const result = await authService.register(validDto);
 
       expect(result.userId).toBe('user-uuid-123');
@@ -79,7 +79,7 @@ describe('AuthService', () => {
       expect(cryptoService.hashPassword).toHaveBeenCalledWith(validDto.password);
     });
 
-    it('should create user with PENDING status', async () => {
+    it('should create user with the hashed password', async () => {
       await authService.register(validDto);
 
       expect(usersService.create).toHaveBeenCalledWith({
@@ -100,7 +100,7 @@ describe('AuthService', () => {
     });
 
     it('should throw ConflictException with generic message if email exists', async () => {
-      (usersService.emailExists as jest.Mock).mockResolvedValue(true);
+      usersService.emailExists.mockResolvedValue(true);
 
       await expect(authService.register(validDto)).rejects.toThrow(ConflictException);
       await expect(authService.register(validDto)).rejects.toThrow(
@@ -109,7 +109,7 @@ describe('AuthService', () => {
     });
 
     it('should throw ConflictException with generic message if username exists', async () => {
-      (usersService.usernameExists as jest.Mock).mockResolvedValue(true);
+      usersService.usernameExists.mockResolvedValue(true);
 
       await expect(authService.register(validDto)).rejects.toThrow(ConflictException);
       await expect(authService.register(validDto)).rejects.toThrow(
@@ -119,7 +119,7 @@ describe('AuthService', () => {
 
     it('should not reveal whether email or username caused the conflict', async () => {
       // Test email conflict
-      (usersService.emailExists as jest.Mock).mockResolvedValue(true);
+      usersService.emailExists.mockResolvedValue(true);
       let errorMessage1 = '';
       try {
         await authService.register(validDto);
@@ -128,8 +128,8 @@ describe('AuthService', () => {
       }
 
       // Reset and test username conflict
-      (usersService.emailExists as jest.Mock).mockResolvedValue(false);
-      (usersService.usernameExists as jest.Mock).mockResolvedValue(true);
+      usersService.emailExists.mockResolvedValue(false);
+      usersService.usernameExists.mockResolvedValue(true);
       let errorMessage2 = '';
       try {
         await authService.register(validDto);
@@ -143,11 +143,11 @@ describe('AuthService', () => {
 
     it('should check email existence before username', async () => {
       const callOrder: string[] = [];
-      (usersService.emailExists as jest.Mock).mockImplementation(async () => {
+      usersService.emailExists.mockImplementation(async () => {
         callOrder.push('emailExists');
         return false;
       });
-      (usersService.usernameExists as jest.Mock).mockImplementation(async () => {
+      usersService.usernameExists.mockImplementation(async () => {
         callOrder.push('usernameExists');
         return false;
       });
@@ -156,6 +156,30 @@ describe('AuthService', () => {
 
       expect(callOrder[0]).toBe('emailExists');
       expect(callOrder[1]).toBe('usernameExists');
+    });
+
+    it('should not create user if email already exists', async () => {
+      usersService.emailExists.mockResolvedValue(true);
+
+      try {
+        await authService.register(validDto);
+      } catch {
+        // expected
+      }
+
+      expect(usersService.create).not.toHaveBeenCalled();
+    });
+
+    it('should not create user if username already exists', async () => {
+      usersService.usernameExists.mockResolvedValue(true);
+
+      try {
+        await authService.register(validDto);
+      } catch {
+        // expected
+      }
+
+      expect(usersService.create).not.toHaveBeenCalled();
     });
   });
 });
