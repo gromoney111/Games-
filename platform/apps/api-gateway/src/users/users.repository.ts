@@ -2,11 +2,12 @@
  * Users Repository
  *
  * Database access layer for user operations via Prisma ORM.
- * Provides CRUD operations for users and user profiles.
+ * Provides CRUD operations for users, user profiles, inventory, and game history.
  */
 
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 export interface CreateUserData {
   email: string;
@@ -112,6 +113,57 @@ export class UsersRepository {
     await this.prisma.user.update({
       where: { id: userId },
       data: { lastLoginAt: new Date() },
+    });
+  }
+
+  /**
+   * Find a user profile by user ID.
+   * Returns the full profile with all fields.
+   */
+  async findProfileByUserId(userId: string) {
+    return this.prisma.userProfile.findUnique({
+      where: { userId },
+    });
+  }
+
+  /**
+   * Update a user profile.
+   * @param userId - The user ID whose profile to update
+   * @param data - Partial profile update data
+   * @returns Updated profile record
+   */
+  async updateProfile(userId: string, data: Partial<UpdateProfileDto>) {
+    return this.prisma.userProfile.update({
+      where: { userId },
+      data,
+    });
+  }
+
+  /**
+   * Get user inventory (completed transactions).
+   * Returns transactions sorted by most recent first.
+   */
+  async getInventory(userId: string) {
+    return this.prisma.transaction.findMany({
+      where: { userId, status: 'COMPLETED' },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Get user game history with game details.
+   * Returns the most recent 50 game results.
+   */
+  async getGameHistory(userId: string) {
+    return this.prisma.gameResult.findMany({
+      where: { userId },
+      orderBy: { completedAt: 'desc' },
+      take: 50,
+      include: {
+        game: {
+          select: { title: true, slug: true, category: true },
+        },
+      },
     });
   }
 }

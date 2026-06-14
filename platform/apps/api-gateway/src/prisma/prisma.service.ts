@@ -21,6 +21,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   userProfile: any;
   game: any;
   gameSession: any;
+  gameResult: any;
   transaction: any;
   affiliate: any;
 
