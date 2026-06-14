@@ -2,6 +2,7 @@
 export { JwtAuthGuard, JwtPayload, RequestUser } from './guards/jwt-auth.guard';
 export { RolesGuard } from './guards/roles.guard';
 export { RateLimitGuard, REDIS_CLIENT, RedisClientInterface } from './guards/rate-limit.guard';
+export { WebhookSignatureGuard } from './guards/webhook-signature.guard';
 
 // Decorators
 export { Roles, ROLES_KEY } from './decorators/roles.decorator';
@@ -14,6 +15,11 @@ export {
   SKIP_RATE_LIMIT_KEY,
   RateLimitOptions,
 } from './decorators/rate-limit.decorator';
+export {
+  WebhookProvider,
+  WEBHOOK_PROVIDER_KEY,
+  WebhookProviderType,
+} from './decorators/webhook.decorator';
 
 // Interceptors
 export { LoggingInterceptor } from './interceptors/logging.interceptor';
@@ -26,3 +32,4 @@ export { ServiceUnavailableFilter } from './filters/service-unavailable.filter';
 
 // Middleware
 export { CorsMiddleware } from './middleware/cors.middleware';
+export { RawBodyMiddleware, WEBHOOK_ROUTES } from './middleware/raw-body.middleware';

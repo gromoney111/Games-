@@ -12,7 +12,11 @@ import { AppModule } from './app.module';
 const PORT = process.env.PORT || 3000;
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    // Enable rawBody to preserve original request body for webhook signature verification
+    rawBody: true,
+    rawBodyParser: true,
+  });
 
   // Global validation pipe for DTO validation
   app.useGlobalPipes(

@@ -31,6 +31,13 @@ export default registerAs('app', () => ({
     password: process.env.REDIS_PASSWORD || '',
   },
 
+  // Webhook Secrets
+  webhooks: {
+    stripeSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+    paypalSecret: process.env.PAYPAL_WEBHOOK_SECRET || '',
+    genericSecret: process.env.WEBHOOK_GENERIC_SECRET || '',
+  },
+
   // Microservice URLs
   services: {
     userService: process.env.USER_SERVICE_URL || 'http://localhost:3010',
