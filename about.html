@@ -3,8 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - GameZone</title>
+    <title>About Us - Game Zone | Free Online HTML5 Games</title>
+    <meta name="description" content="Learn about Game Zone - your ultimate free online gaming platform. Play 25+ browser-based HTML5 games including puzzle, arcade, board games, and more.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://gamezone.com/about.html">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .about-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .about-content h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .about-content .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        .about-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(108, 99, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+        .about-card h2 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .about-card p {
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        .about-card ul {
+            color: var(--text-muted);
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            line-height: 2;
+        }
+        .about-card li {
+            margin-bottom: 0.3rem;
+        }
+        .about-card strong {
+            color: var(--text);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: rgba(108, 99, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(108, 99, 255, 0.1);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .category-item {
+            background: rgba(108, 99, 255, 0.05);
+            padding: 1rem 1.2rem;
+            border-radius: 10px;
+            border: 1px solid rgba(108, 99, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .category-item .cat-icon {
+            font-size: 1.5rem;
+        }
+        .category-item .cat-name {
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .feature-item .feature-icon {
+            font-size: 1.3rem;
+            min-width: 30px;
+        }
+        .feature-item .feature-text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .feature-item .feature-text strong {
+            display: block;
+            color: var(--text);
+            margin-bottom: 0.2rem;
+        }
+    </style>
+    <!-- Organization Schema (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Game Zone",
+        "url": "https://gamezone.com",
+        "logo": "https://gamezone.com/icons/icon-512x512.png",
+        "description": "Game Zone is a free online gaming platform offering 25+ HTML5 browser games across multiple categories including puzzle, arcade, board games, brain teasers, and casual games.",
+        "foundingDate": "2024",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "Customer Support",
+            "email": "contact@gamezone.com",
+            "availableLanguage": "English"
+        },
+        "sameAs": []
+    }
+    </script>
 </head>
 <body>
     <header class="header">
@@ -13,39 +159,152 @@
             <nav class="nav">
                 <a href="index.html">Games</a>
                 <a href="about.html" class="active">About</a>
+                <a href="contact.html">Contact</a>
             </nav>
         </div>
     </header>
 
-    <main class="games-section" style="max-width: 800px;">
-        <h2 class="section-title">About GameZone</h2>
-        <div style="background: var(--card-bg); padding: 2rem; border-radius: 16px; border: 1px solid rgba(108,99,255,0.1);">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Welcome to GameZone!</h3>
-            <p style="margin-bottom: 1rem; line-height: 1.8; color: var(--text-muted);">
-                GameZone is a collection of 10 free HTML5 games that you can play directly in your browser. 
-                No downloads, no installations, no accounts required — just click and play!
-            </p>
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Our Games</h3>
-            <p style="margin-bottom: 1rem; line-height: 1.8; color: var(--text-muted);">
-                We offer a variety of classic and modern games including:
-            </p>
-            <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem; color: var(--text-muted); line-height: 2;">
-                <li>🐍 Snake - Classic arcade fun</li>
-                <li>🧱 Tetris - Block-stacking puzzle</li>
-                <li>🐦 Flappy Bird - Tap-to-fly challenge</li>
-                <li>🃏 Memory Cards - Brain training</li>
-                <li>❌ Tic Tac Toe - Strategy vs AI</li>
-                <li>🔢 2048 - Number puzzle</li>
-                <li>💥 Breakout - Brick-breaking action</li>
-                <li>🔨 Whack-a-Mole - Reflexes test</li>
-                <li>🧠 Quiz Game - Trivia challenge</li>
-                <li>📝 Word Scramble - Word puzzle</li>
+    <main class="about-content">
+        <h1>About Game Zone</h1>
+        <p class="subtitle">Your ultimate destination for free online HTML5 games - play instantly in your browser!</p>
+
+        <!-- Platform Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">25+</div>
+                <div class="stat-label">Free Games</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Game Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free to Play</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Downloads Required</div>
+            </div>
+        </div>
+
+        <!-- Platform Description -->
+        <div class="about-card">
+            <h2>What is Game Zone?</h2>
+            <p>Game Zone is a free online gaming platform that offers a curated collection of HTML5 browser games. Our platform is designed to provide instant entertainment without the hassle of downloads, installations, or account creation. Simply visit our website, pick a game, and start playing!</p>
+            <p>Whether you're looking for a quick brain teaser during your break, a classic arcade challenge to test your reflexes, or a strategic board game to sharpen your mind, Game Zone has something for everyone. All our games are built with pure HTML5, CSS3, and JavaScript, ensuring they run smoothly on any modern device.</p>
+        </div>
+
+        <!-- Mission Statement -->
+        <div class="about-card">
+            <h2>Our Mission</h2>
+            <p>At Game Zone, our mission is to provide accessible, high-quality gaming experiences to everyone, everywhere. We believe that gaming should be:</p>
+            <ul>
+                <li><strong>Free:</strong> No hidden costs, no in-app purchases, no premium tiers</li>
+                <li><strong>Accessible:</strong> Play on any device with a web browser - desktop, tablet, or mobile</li>
+                <li><strong>Instant:</strong> No downloads, no installations, no waiting - just click and play</li>
+                <li><strong>Safe:</strong> No account required, no personal data needed to enjoy our games</li>
+                <li><strong>Diverse:</strong> A wide variety of games catering to different tastes and skill levels</li>
             </ul>
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Technology</h3>
-            <p style="line-height: 1.8; color: var(--text-muted);">
-                All games are built with pure HTML5, CSS3, and JavaScript. They use HTML5 Canvas 
-                for rendering and work on all modern browsers and mobile devices.
-            </p>
+        </div>
+
+        <!-- Game Categories -->
+        <div class="about-card">
+            <h2>Our Game Categories</h2>
+            <p>We offer games across multiple categories to suit every mood and preference:</p>
+            <div class="categories-grid">
+                <div class="category-item">
+                    <span class="cat-icon">&#129513;</span>
+                    <span class="cat-name">Puzzle Games</span>
+                </div>
+                <div class="category-item">
+                    <span class="cat-icon">&#127918;</span>
+                    <span class="cat-name">Arcade Games</span>
+                </div>
+                <div class="category-item">
+                    <span class="cat-icon">&#9823;</span>
+                    <span class="cat-name">Board & Card</span>
+                </div>
+                <div class="category-item">
+                    <span class="cat-icon">&#129504;</span>
+                    <span class="cat-name">Brain & Trivia</span>
+                </div>
+                <div class="category-item">
+                    <span class="cat-icon">&#127919;</span>
+                    <span class="cat-name">Casual Games</span>
+                </div>
+            </div>
+            <p>Our game library includes popular titles such as Sudoku, 2048, Chess, Snake, Tetris, Bubble Shooter, Word Search, Solitaire, and many more. We regularly update our collection with new games and improvements.</p>
+        </div>
+
+        <!-- Why Choose Game Zone -->
+        <div class="about-card">
+            <h2>Why Choose Game Zone?</h2>
+            <div class="features-list">
+                <div class="feature-item">
+                    <span class="feature-icon">&#9889;</span>
+                    <div class="feature-text">
+                        <strong>Lightning Fast</strong>
+                        Games load instantly with optimized HTML5 code
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">&#128241;</span>
+                    <div class="feature-text">
+                        <strong>Mobile Responsive</strong>
+                        Fully responsive design works on all screen sizes
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">&#128274;</span>
+                    <div class="feature-text">
+                        <strong>Privacy Focused</strong>
+                        No account needed, minimal data collection
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">&#127760;</span>
+                    <div class="feature-text">
+                        <strong>Works Offline</strong>
+                        PWA support lets you play even without internet
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">&#127942;</span>
+                    <div class="feature-text">
+                        <strong>Score Tracking</strong>
+                        Local high scores saved automatically in your browser
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">&#128640;</span>
+                    <div class="feature-text">
+                        <strong>Regular Updates</strong>
+                        New games and features added regularly
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology -->
+        <div class="about-card">
+            <h2>Technology</h2>
+            <p>All games on Game Zone are built with modern web technologies:</p>
+            <ul>
+                <li><strong>HTML5 Canvas:</strong> High-performance game rendering</li>
+                <li><strong>CSS3:</strong> Beautiful animations and responsive layouts</li>
+                <li><strong>Vanilla JavaScript:</strong> Fast, lightweight gameplay without heavy frameworks</li>
+                <li><strong>Progressive Web App (PWA):</strong> Install on your device for offline play</li>
+                <li><strong>Local Storage:</strong> Save game progress and high scores on your device</li>
+            </ul>
+            <p>Our games work on all modern browsers including Chrome, Firefox, Safari, Edge, and Opera on both desktop and mobile devices.</p>
+        </div>
+
+        <!-- Contact CTA -->
+        <div class="about-card" style="text-align: center;">
+            <h2>Get in Touch</h2>
+            <p>Have suggestions for new games? Found a bug? Want to collaborate? We'd love to hear from you!</p>
+            <a href="contact.html" class="play-btn" style="display: inline-block; margin-top: 1rem;">Contact Us</a>
         </div>
     </main>
 
@@ -53,8 +312,14 @@
         <div class="footer-links">
             <a href="index.html">Home</a>
             <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+            <a href="disclaimer.html">Disclaimer</a>
+            <a href="dmca.html">DMCA</a>
+            <a href="cookie-policy.html">Cookie Policy</a>
         </div>
-        <p>&copy; 2024 GameZone. All games are free to play.</p>
+        <p>&copy; 2026 Game Zone. All rights reserved.</p>
     </footer>
 
     <script src="js/main.js"></script>

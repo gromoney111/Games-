@@ -39,6 +39,8 @@
 </head>
 <body>
     <a href="../../index.html" class="back-link">← Back to Games</a>
+    <!-- Ad Slot: Above Game -->
+    <div id="ad-slot-game-top" class="ad-container-game"></div>
     <h1>2048</h1>
     <div class="score-board">
         <div class="score-box"><span>Score</span><strong id="score">0</strong></div>
@@ -52,6 +54,26 @@
     </div>
     <div class="controls"><p>Use Arrow Keys or Swipe to move tiles</p></div>
     <button class="btn" onclick="startGame()">New Game</button>
+
+    <!-- Ad Slot: Below Game -->
+    <div id="ad-slot-game-bottom" class="ad-container-game"></div>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="cookie-banner" style="display:none;">
+        <div class="cookie-content">
+            <p>We use cookies to improve your experience and show relevant ads. 
+               <a href="../../cookie-policy.html">Learn more</a></p>
+            <div class="cookie-buttons">
+                <button onclick="acceptCookies()" class="btn-accept">Accept All</button>
+                <button onclick="rejectCookies()" class="btn-reject">Essential Only</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="../../js/ads.js"></script>
 
     <script>
         let grid, score, best;

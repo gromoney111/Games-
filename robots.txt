@@ -1,0 +1,17 @@
+# robots.txt for Game Zone
+# https://gamezone.com
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and system paths
+Disallow: /platform/
+Disallow: /.git/
+Disallow: /.kiro/
+
+# Allow game pages
+Allow: /games/
+
+# Sitemap
+Sitemap: https://gamezone.com/sitemap.xml
