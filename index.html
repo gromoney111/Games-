@@ -11,6 +11,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Game Zone">
     <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXX">
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -112,6 +114,9 @@
         <p>Enjoy 25 HTML5 games right in your browser. No downloads, no installs — just pure fun!</p>
     </section>
 
+    <!-- Ad Slot: Top Banner -->
+    <div id="ad-slot-top" class="ad-container"></div>
+
     <main class="games-section">
         <div class="category-filters">
             <button class="filter-btn active" data-filter="all">🎮 All Games</button>
@@ -203,6 +208,8 @@
             </div>
 
             <!-- ARCADE GAMES -->
+            <!-- Ad Slot: Mid-page between categories -->
+            <div id="ad-slot-mid" class="ad-container" style="grid-column: 1 / -1;"></div>
             <!-- Snake -->
             <div class="game-card" data-category="arcade">
                 <div class="game-card-thumbnail">🐍</div>
@@ -467,6 +474,21 @@
             }
         });
     </script>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="cookie-banner" style="display:none;">
+        <div class="cookie-content">
+            <p>We use cookies to improve your experience and show relevant ads. 
+               <a href="cookie-policy.html">Learn more</a></p>
+            <div class="cookie-buttons">
+                <button onclick="acceptCookies()" class="btn-accept">Accept All</button>
+                <button onclick="rejectCookies()" class="btn-reject">Essential Only</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ad Management Script -->
+    <script src="js/ads.js"></script>
 
     <!-- Service Worker Registration -->
     <script>

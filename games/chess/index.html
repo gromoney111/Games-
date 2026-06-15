@@ -37,6 +37,8 @@
 </head>
 <body>
     <a href="../../index.html" class="back-link">← Back to Games</a>
+    <!-- Ad Slot: Above Game -->
+    <div id="ad-slot-game-top" class="ad-container-game"></div>
     <h1>♟ Chess</h1>
     <div class="info-bar">
         <div><span>Turn: </span><strong id="turn">White</strong></div>
@@ -48,6 +50,26 @@
     </div>
     <div class="status" id="status"></div>
     <button class="btn" onclick="newGame()">New Game</button>
+
+    <!-- Ad Slot: Below Game -->
+    <div id="ad-slot-game-bottom" class="ad-container-game"></div>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="cookie-banner" style="display:none;">
+        <div class="cookie-content">
+            <p>We use cookies to improve your experience and show relevant ads. 
+               <a href="../../cookie-policy.html">Learn more</a></p>
+            <div class="cookie-buttons">
+                <button onclick="acceptCookies()" class="btn-accept">Accept All</button>
+                <button onclick="rejectCookies()" class="btn-reject">Essential Only</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="../../js/ads.js"></script>
 
     <script>
         const PIECES = { K:'♔', Q:'♕', R:'♖', B:'♗', N:'♘', P:'♙', k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' };
