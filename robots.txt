@@ -1,5 +1,5 @@
 # robots.txt for Game Zone
-# https://gamezone.com
+# https://gamezone.prosoftwaretools.com
 
 # Allow all crawlers
 User-agent: *
@@ -14,4 +14,4 @@ Disallow: /.kiro/
 Allow: /games/
 
 # Sitemap
-Sitemap: https://gamezone.com/sitemap.xml
+Sitemap: https://gamezone.prosoftwaretools.com/sitemap.xml

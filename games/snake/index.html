@@ -2,7 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://gamezone.prosoftwaretools.com/games/snake/">
     <title>Snake - GameZone</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
@@ -43,6 +53,7 @@
         .mobile-controls .row { display: flex; justify-content: center; gap: 5px; margin: 5px 0; }
         @media (max-width: 600px) { .mobile-controls { display: block; } canvas { width: 100%; height: auto; } }
     </style>
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 </head>
 <body>
     <a href="../../index.html" class="back-link">← Back to Games</a>
