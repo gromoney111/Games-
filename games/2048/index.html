@@ -2,7 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://gamezone.prosoftwaretools.com/games/2048/">
     <title>2048 - GameZone</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
@@ -36,6 +46,7 @@
         .game-over h2 { color: #ff6584; }
         @media (max-width: 420px) { .grid { max-width: 320px; } .tile { font-size: 1.2rem; } }
     </style>
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 </head>
 <body>
     <a href="../../index.html" class="back-link">← Back to Games</a>

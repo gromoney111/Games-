@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <!-- Homepage -->
     <url>
-        <loc>https://gamezone.com/</loc>
+        <loc>https://gamezone.prosoftwaretools.com/</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
@@ -10,13 +10,13 @@
 
     <!-- Main Pages -->
     <url>
-        <loc>https://gamezone.com/about.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/about.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/contact.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/contact.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -24,31 +24,31 @@
 
     <!-- Legal Pages -->
     <url>
-        <loc>https://gamezone.com/privacy-policy.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/privacy-policy.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/terms.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/terms.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/disclaimer.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/disclaimer.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.4</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/dmca.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/dmca.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.4</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/cookie-policy.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/cookie-policy.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.4</priority>
@@ -56,43 +56,43 @@
 
     <!-- Puzzle Games -->
     <url>
-        <loc>https://gamezone.com/games/sudoku/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/sudoku/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/2048/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/2048/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/block-puzzle/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/block-puzzle/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/sliding-puzzle/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/sliding-puzzle/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/water-sort/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/water-sort/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/color-sort/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/color-sort/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/crossword/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/crossword/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -100,31 +100,31 @@
 
     <!-- Arcade Games -->
     <url>
-        <loc>https://gamezone.com/games/snake/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/snake/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/flappy-bird/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/flappy-bird/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/breakout/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/breakout/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/endless-runner/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/endless-runner/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/space-shooter/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/space-shooter/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -132,31 +132,31 @@
 
     <!-- Card & Board Games -->
     <url>
-        <loc>https://gamezone.com/games/solitaire/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/solitaire/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/chess/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/chess/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/checkers/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/checkers/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/tic-tac-toe/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/tic-tac-toe/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/memory-cards/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/memory-cards/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -164,31 +164,31 @@
 
     <!-- Brain & Trivia Games -->
     <url>
-        <loc>https://gamezone.com/games/word-search/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/word-search/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/word-scramble/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/word-scramble/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/quiz/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/quiz/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/math-challenge/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/math-challenge/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/match3/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/match3/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -196,19 +196,19 @@
 
     <!-- Casual Games -->
     <url>
-        <loc>https://gamezone.com/games/tetris/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/tetris/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/bubble-shooter/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/bubble-shooter/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
-        <loc>https://gamezone.com/games/whack-a-mole/index.html</loc>
+        <loc>https://gamezone.prosoftwaretools.com/games/whack-a-mole/index.html</loc>
         <lastmod>2026-06-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>

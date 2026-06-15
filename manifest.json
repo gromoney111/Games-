@@ -2,8 +2,8 @@
   "name": "Game Zone - Play Free Online Games",
   "short_name": "Game Zone",
   "description": "Play 25+ free HTML5 games online. Puzzle, Arcade, Strategy, Brain & Card games.",
-  "start_url": "/Games-/",
-  "scope": "/Games-/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0f0f23",
@@ -58,13 +58,13 @@
     {
       "name": "Puzzle Games",
       "short_name": "Puzzle",
-      "url": "/Games-/?category=puzzle",
+      "url": "/?category=puzzle",
       "icons": [{"src": "icons/icon-96x96.png", "sizes": "96x96"}]
     },
     {
       "name": "Arcade Games",
       "short_name": "Arcade",
-      "url": "/Games-/?category=arcade",
+      "url": "/?category=arcade",
       "icons": [{"src": "icons/icon-96x96.png", "sizes": "96x96"}]
     }
   ]
