@@ -9,6 +9,8 @@ import { GamesModule } from './games/games.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { PaymentsModule } from './payments/payments.module';
+import { AffiliatesModule } from './affiliates/affiliates.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RateLimitGuard, REDIS_CLIENT } from './common/guards/rate-limit.guard';
 import appConfig from './config/app.config';
@@ -81,9 +83,9 @@ const RedisClientProvider = {
     SessionsModule,
     LeaderboardModule,
     PaymentsModule,
-    // AffiliatesModule,
+    AffiliatesModule,
+    AnalyticsModule,
     // AdsModule,
-    // AnalyticsModule,
     // AdminModule,
   ],
   providers: [
