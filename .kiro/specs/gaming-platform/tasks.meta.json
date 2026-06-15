@@ -1,0 +1,690 @@
+{
+  "pbtResults": {
+    "4.2 Write property test for username and email validation": {
+      "status": "passed",
+      "lastRunTimestamp": 1781533005737
+    },
+    "4.3 Write property test for profile update round-trip": {
+      "status": "passed",
+      "lastRunTimestamp": 1781533017075
+    }
+  },
+  "executionHistory": {
+    "1.1 Initialize monorepo structure with shared packages": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048656
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408057539
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408263048
+      }
+    ],
+    "1.2 Define shared TypeScript types and interfaces": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048662
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408266750
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408618380
+      }
+    ],
+    "1.3 Set up PostgreSQL database schema and migrations": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048668
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408267407
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408619187
+      }
+    ],
+    "1.4 Set up Redis configuration and connection module": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048674
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408268062
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408619872
+      }
+    ],
+    "1.5 Set up message queue infrastructure": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048680
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408268714
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408620605
+      }
+    ],
+    "1.6 Set up Docker and docker-compose for local development": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048685
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408269435
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408621341
+      }
+    ],
+    "2.1 Implement API Gateway with NestJS": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048691
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408625647
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409132965
+      }
+    ],
+    "2.2 Implement rate limiting middleware": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048696
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409137938
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409655207
+      }
+    ],
+    "2.4 Implement webhook signature validation": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048701
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409138596
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409655794
+      }
+    ],
+    "2.5 Implement service unavailability handling": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048707
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409139257
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409656489
+      }
+    ],
+    "3.1 Implement user registration endpoint": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048712
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408626366
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409133619
+      }
+    ],
+    "3.2 Implement user authentication endpoint": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048717
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409140015
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409657186
+      }
+    ],
+    "3.5 Implement token refresh endpoint": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048721
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409140667
+      },
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409657863
+      }
+    ],
+    "4.1 Implement user profile CRUD endpoints": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048726
+      }
+    ],
+    "4.4 Implement GDPR data portability and account deactivation": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048731
+      }
+    ],
+    "5. Checkpoint - Core user services": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048738
+      }
+    ],
+    "6.1 Implement game catalog endpoints": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048747
+      }
+    ],
+    "6.3 Implement game administration endpoints": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048755
+      }
+    ],
+    "7.1 Implement game session lifecycle": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048765
+      }
+    ],
+    "7.2 Implement game action processing": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048770
+      }
+    ],
+    "7.5 Implement session end and timeout handling": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048775
+      }
+    ],
+    "7.8 Implement game state corruption recovery": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048780
+      }
+    ],
+    "8.1 Implement leaderboard endpoints": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048786
+      }
+    ],
+    "9. Checkpoint - Game services complete": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048792
+      }
+    ],
+    "10.1 Implement purchase initiation": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048796
+      }
+    ],
+    "10.5 Implement payment webhook processing": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048801
+      }
+    ],
+    "10.6 Implement refund processing": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048806
+      }
+    ],
+    "10.7 Implement payment timeout and retry handling": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048812
+      }
+    ],
+    "11.1 Implement affiliate registration and management": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048818
+      }
+    ],
+    "11.3 Implement affiliate click and conversion tracking": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048822
+      }
+    ],
+    "11.4 Implement commission calculation": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048826
+      }
+    ],
+    "11.7 Implement affiliate payout processing": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048830
+      }
+    ],
+    "11.9 Implement affiliate fraud detection": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048836
+      }
+    ],
+    "12. Checkpoint - Monetization services complete": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048841
+      }
+    ],
+    "13.1 Implement ad placement and serving": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048846
+      }
+    ],
+    "13.2 Implement ad impression and click tracking": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048850
+      }
+    ],
+    "13.5 Implement ad revenue reporting": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048856
+      }
+    ],
+    "14.1 Implement consent management system": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048860
+      }
+    ],
+    "14.2 Implement PII data purge on consent withdrawal": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048865
+      }
+    ],
+    "14.4 Implement cookie consent banner and legal pages": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048869
+      }
+    ],
+    "14.5 Implement age restriction enforcement": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048873
+      }
+    ],
+    "15.1 Implement SEO metadata generation": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048879
+      }
+    ],
+    "15.3 Implement JSON-LD structured data generation": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048884
+      }
+    ],
+    "16.1 Implement event tracking and ingestion": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048889
+      }
+    ],
+    "16.2 Implement metrics and reporting endpoints": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048894
+      }
+    ],
+    "16.4 Implement data retention policy": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048900
+      }
+    ],
+    "16.5 Implement Google Search Console and Analytics integration": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048905
+      }
+    ],
+    "17.1 Implement notification processing": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048910
+      }
+    ],
+    "18. Checkpoint - All backend services complete": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048917
+      }
+    ],
+    "19.1 Implement admin dashboard backend": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048921
+      }
+    ],
+    "19.3 Implement admin dashboard frontend": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048927
+      }
+    ],
+    "20.1 Implement web SPA core shell and routing": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048931
+      }
+    ],
+    "20.2 Implement game catalog and discovery UI": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048936
+      }
+    ],
+    "20.3 Implement game player and session UI": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048941
+      }
+    ],
+    "20.4 Implement user dashboard": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048948
+      }
+    ],
+    "20.5 Implement purchase and store UI": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048953
+      }
+    ],
+    "20.6 Implement cookie consent and legal pages": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048958
+      }
+    ],
+    "20.7 Implement ad placement components": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048962
+      }
+    ],
+    "21.1 Implement React Native mobile app core": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048967
+      }
+    ],
+    "21.2 Implement mobile game experience": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048971
+      }
+    ],
+    "22. Checkpoint - Frontend applications complete": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048976
+      }
+    ],
+    "23.1 Implement game integration SDK and framework": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048981
+      }
+    ],
+    "23.2 Integrate 25-30 HTML5 games": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048986
+      }
+    ],
+    "24.1 Implement platform security measures": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048993
+      }
+    ],
+    "25.1 Implement database connection resilience": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408048997
+      }
+    ],
+    "25.2 Implement performance optimizations": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049001
+      }
+    ],
+    "26. Checkpoint - Integration and security complete": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049006
+      }
+    ],
+    "27.1 Implement unit test suite": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049011
+      }
+    ],
+    "27.2 Implement integration test suite": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049018
+      }
+    ],
+    "27.3 Implement end-to-end test suite": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049022
+      }
+    ],
+    "27.4 Implement performance and security tests": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049026
+      }
+    ],
+    "28.1 Implement CI/CD pipeline": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049031
+      }
+    ],
+    "28.2 Implement Kubernetes deployment manifests": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049038
+      }
+    ],
+    "28.3 Implement monitoring and observability": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049043
+      }
+    ],
+    "29. Final checkpoint - Platform deployment ready": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408049047
+      }
+    ],
+    "1. Project infrastructure and shared foundations": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781408621349
+      }
+    ],
+    "2. API Gateway and authentication service": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409656494
+      }
+    ],
+    "3. User service — registration and authentication": [
+      {
+        "executionId": "a0ab6225-8b77-4beb-8f6d-0be4ad83033c",
+        "chatSessionId": "61c30213-5910-4ca6-a67c-3fcfcf8b25fd",
+        "timestamp": 1781409657867
+      }
+    ]
+  }
+}
